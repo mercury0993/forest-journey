@@ -1,0 +1,89 @@
+<h2>MVP 页面流程</h2>
+<p class="subtitle">C端最小闭环 — 5个核心页面</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">用户路径</div>
+    <div class="mockup-body">
+      <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 16px; justify-content: center;">
+        <div style="background: #1a3a2a; color: #c4f0c4; padding: 16px 20px; border-radius: 12px; text-align: center; min-width: 100px;">
+          <div style="font-size: 20px; margin-bottom: 4px;">🏠</div>
+          <strong>首页</strong>
+          <div style="font-size: 12px; opacity: 0.7;">森林之门</div>
+        </div>
+        <div style="font-size: 20px;">→</div>
+        <div style="background: #1a2a4a; color: #c4d4f0; padding: 16px 20px; border-radius: 12px; text-align: center; min-width: 100px;">
+          <div style="font-size: 20px; margin-bottom: 4px;">🧘</div>
+          <strong>冥想引导</strong>
+          <div style="font-size: 12px; opacity: 0.7;">呼吸动画 + 文字引导</div>
+        </div>
+        <div style="font-size: 20px;">→</div>
+        <div style="background: #2a1a3a; color: #d4c4f0; padding: 16px 20px; border-radius: 12px; text-align: center; min-width: 100px;">
+          <div style="font-size: 20px; margin-bottom: 4px;">🌲</div>
+          <strong>4个场景测评</strong>
+          <div style="font-size: 12px; opacity: 0.7;">动物1 → 小屋 → 墙 → 动物2</div>
+        </div>
+        <div style="font-size: 20px;">→</div>
+        <div style="background: #2a2a1a; color: #f0e4c4; padding: 16px 20px; border-radius: 12px; text-align: center; min-width: 100px;">
+          <div style="font-size: 20px; margin-bottom: 4px;">✨</div>
+          <strong>结果页</strong>
+          <div style="font-size: 12px; opacity: 0.7;">卡片 + 报告</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>路由结构</h3>
+  <div class="mockup">
+    <div class="mockup-header">Next.js App Router — (public) route group</div>
+    <div class="mockup-body">
+      <pre style="font-family: monospace; font-size: 14px; line-height: 1.8;">
+app/
+├── (public)/
+│   ├── page.tsx              ← 首页（森林之门）
+│   ├── meditate/
+│   │   └── page.tsx          ← 冥想引导页
+│   ├── assessment/
+│   │   └── page.tsx          ← 测评流程（4场景在此页内切换）
+│   ├── result/
+│   │   └── page.tsx          ← 结果页（卡片 + 完整报告）
+│   └── profile/
+│       └── page.tsx          ← 个人中心（localStorage回看）
+├── api/
+│   ├── report/
+│   │   └── route.ts          ← NLP抽取 + 报告生成（OpenAI）
+│   └── auth/
+│       └── [...nextauth]/    ← 注册时用到
+├── components/
+├── lib/
+│   ├── mapping-engine.ts     ← 核心映射算法（客户端）
+│   ├── templates.ts           ← 报告模板库（5-8种）
+│   └── animals.ts             ← 动物→插画映射
+└── public/
+      </pre>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>底部导航（MVP仅2项）</h3>
+  <div style="display: flex; gap: 16px; padding: 16px; background: #111; border-radius: 12px; justify-content: center;">
+    <div style="background: #1a3a2a; padding: 12px 32px; border-radius: 8px; text-align: center;">
+      <div style="font-size: 18px;">🗺️</div>
+      <div style="color: #c4f0c4;">探索</div>
+      <div style="font-size: 11px; opacity: 0.5;">首页</div>
+    </div>
+    <div style="background: #222; padding: 12px 32px; border-radius: 8px; text-align: center; opacity: 0.5;">
+      <div style="font-size: 18px;">🧭</div>
+      <div style="color: #888;">发现</div>
+      <div style="font-size: 11px; opacity: 0.5;">预留</div>
+    </div>
+    <div style="background: #2a2a1a; padding: 12px 32px; border-radius: 8px; text-align: center;">
+      <div style="font-size: 18px;">👤</div>
+      <div style="color: #f0e4c4;">我的</div>
+      <div style="font-size: 11px; opacity: 0.5;">历史报告</div>
+    </div>
+  </div>
+</div>

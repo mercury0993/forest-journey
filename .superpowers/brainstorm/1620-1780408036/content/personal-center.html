@@ -1,0 +1,85 @@
+<h2>个人中心 & 数据流</h2>
+<p class="subtitle">轻量 localStorage 方案 + 全局状态管理</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">个人中心 — localStorage 版</div>
+    <div class="mockup-body" style="padding: 20px; background: #0a1a0a;">
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: #1a3a2a; display: flex; align-items: center; justify-content: center; font-size: 28px;">🦊</div>
+        <div>
+          <div style="color: #c4f0c4; font-weight: 600;">未登录</div>
+          <div style="color: #666; font-size: 12px;">注册以永久保存报告</div>
+        </div>
+      </div>
+
+      <div style="color: #9ad0a0; font-size: 13px; font-weight: 600; margin-bottom: 12px;">历史测评（本设备）</div>
+
+      <div style="margin-bottom: 12px; padding: 14px; background: #0d1f14; border-radius: 8px; border-left: 3px solid #3a6a3a;">
+        <div style="color: #c4f0c4; font-weight: 500;">林间向导 · 灵狐型</div>
+        <div style="color: #888; font-size: 11px;">2026-06-02 · 满分报告已解锁</div>
+        <div style="color: #4a8a4a; font-size: 11px; margin-top: 4px;">查看报告 →</div>
+      </div>
+
+      <div style="margin-bottom: 12px; padding: 14px; background: #0d1f14; border-radius: 8px; border-left: 3px solid #555;">
+        <div style="color: #aaa; font-weight: 500;">守护者 · 棕熊型</div>
+        <div style="color: #888; font-size: 11px;">2026-05-28 · 未解锁</div>
+        <div style="color: #4a8a4a; font-size: 11px; margin-top: 4px;">查看报告 →</div>
+      </div>
+
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #1a2a1a;">
+        <div style="color: #888; font-size: 13px; margin-bottom: 12px;">设置</div>
+        <div style="display: flex; justify-content: space-between; padding: 10px 0; color: #aaa; font-size: 13px;">
+          <span>🔊 白噪音</span><span style="color: #4a8a4a;">开</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 10px 0; color: #aaa; font-size: 13px;">
+          <span>🗑 清除缓存</span><span style="color: #666;">→</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 10px 0; color: #aaa; font-size: 13px;">
+          <span>ℹ️ 关于我们</span><span style="color: #666;">→</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="mockup" style="margin-bottom: 20px;">
+      <div class="mockup-header">数据流（简易版）</div>
+      <div class="mockup-body" style="padding: 16px; font-size: 13px; line-height: 2; background: #0a0a0a;">
+        <div style="color: #c4f0c4;">📝 测评答案</div>
+        <div style="color: #888;">→ React state (assessment page)</div>
+        <div style="color: #888; margin-bottom: 8px;">→ 完成时存入 localStorage</div>
+
+        <div style="color: #c4f0c4;">🧠 映射计算</div>
+        <div style="color: #888;">→ 纯前端 mapping-engine.ts</div>
+        <div style="color: #888;">→ 输入答案 → 输出四维分</div>
+
+        <div style="color: #c4f0c4;">🤖 NLP 抽取</div>
+        <div style="color: #888;">→ POST /api/report</div>
+        <div style="color: #888;">→ OpenAI 提取动物名称&情感</div>
+        <div style="color: #888; margin-bottom: 8px;">→ 降级：关键词正则匹配</div>
+
+        <div style="color: #c4f0c4;">📊 报告拼接</div>
+        <div style="color: #888;">→ 四维分 + NLP → 匹配模板</div>
+        <div style="color: #888;">→ 前端渲染卡片 & 报告</div>
+        <div style="color: #888; margin-bottom: 8px;">→ 存入 localStorage</div>
+
+        <div style="color: #c4f0c4;">🔓 付费解锁</div>
+        <div style="color: #888;">→ mock：前端直接标记 is_paid=true</div>
+      </div>
+    </div>
+
+    <div class="mockup">
+      <div class="mockup-header">状态管理</div>
+      <div class="mockup-body" style="padding: 16px; font-size: 13px; line-height: 1.8; background: #0a0a0a;">
+        <div style="color: #9ad0a0; font-weight: 600;">React Context × 2</div>
+        <div style="color: #888;">• AssessmentContext — 测评进度、答案</div>
+        <div style="color: #888; margin-bottom: 8px;">• AudioContext — 白噪音开关、音量</div>
+        <div style="color: #9ad0a0; font-weight: 600; margin-top: 12px;">localStorage keys</div>
+        <div style="color: #888;">• fj_reports — 历史报告列表</div>
+        <div style="color: #888;">• fj_audio_on — 音效开关</div>
+        <div style="color: #888;">• fj_current_assessment — 进行中测评（断点续答）</div>
+      </div>
+    </div>
+  </div>
+</div>
