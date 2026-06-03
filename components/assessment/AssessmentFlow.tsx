@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import SceneAnimal from "./SceneAnimal";
@@ -18,12 +18,10 @@ export default function AssessmentFlow() {
   const router = useRouter();
   const { answers, setScene1, setScene2, setScene3, setScene4, restoreFromStorage } = useAssessment();
   const [scene, setScene] = useState<SceneId>(1);
-  const [hasRestored, setHasRestored] = useState(false);
 
-  if (!hasRestored) {
-    setHasRestored(true);
+  useEffect(() => {
     restoreFromStorage();
-  }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleScene1Complete = useCallback((data: Parameters<typeof setScene1>[0]) => {
     setScene1(data);
