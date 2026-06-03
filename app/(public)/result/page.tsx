@@ -1,0 +1,131 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import WaitingAnimation from "@/components/result/WaitingAnimation";
+import ServiceCard from "@/components/result/ServiceCard";
+import FullReport from "@/components/result/FullReport";
+import { calculateScores, matchTemplate } from "@/lib/mapping-engine";
+import { nlpFallback } from "@/lib/nlp-fallback";
+import { saveReport } from "@/lib/storage";
+import { AssessmentAnswers, ReportData } from "@/lib/types";
+
+type Stage = "waiting" | "card" | "report";
+
+export default function ResultPage() {
+  const router = useRouter();
+  const [stage, setStage] = useState<Stage>("waiting");
+  const [reportData, setReportData] = useState<ReportData | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const raw = localStorage.getItem("fj_latest_answers");
+    if (!raw) {
+      router.push("/");
+      return;
+    }
+
+    try {
+      const answers: AssessmentAnswers = JSON.parse(raw);
+
+      const runNLP = async () => {
+        let nlpResult;
+        try {
+          const res = await fetch("/api/report", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              animal1Text: `${answers.scene1.animalName} ${answers.scene1.description} ${answers.scene1.followUp1}`,
+              animal2Text: `${answers.scene4.animalName} ${answers.scene4.description}`,
+              animal2Feeling: answers.scene4.firstFeeling,
+            }),
+          });
+          if (res.ok) {
+            nlpResult = await res.json();
+          } else {
+            throw new Error("API failed");
+          }
+        } catch {
+          nlpResult = nlpFallback(
+            `${answers.scene1.animalName} ${answers.scene1.description} ${answers.scene1.followUp1}`,
+            `${answers.scene4.animalName} ${answers.scene4.description}`,
+            answers.scene4.firstFeeling
+          );
+        }
+
+        const scores = calculateScores(answers, nlpResult);
+        const match = matchTemplate(scores);
+
+        const report: ReportData = {
+          id: Date.now().toString(36),
+          createdAt: new Date().toISOString(),
+          answers,
+          scores,
+          nlp: nlpResult,
+          templateIndex: match.templateIndex,
+          roleTitle: match.roleTitle,
+          cardTitle: match.cardTitle,
+          cardInterpretation: match.cardInterpretation,
+          fullReport: match.fullReport,
+          isPaid: false,
+        };
+
+        setReportData(report);
+        localStorage.removeItem("fj_latest_answers");
+      };
+
+      runNLP();
+    } catch {
+      setError(true);
+    }
+  }, [router]);
+
+  const handleUnlock = () => {
+    if (!reportData) return;
+    const updated = { ...reportData, isPaid: true };
+    setReportData(updated);
+    saveReport(updated);
+    setStage("report");
+  };
+
+  const handleSave = () => {
+    if (reportData && !reportData.isPaid) {
+      saveReport({ ...reportData, isPaid: true });
+    }
+  };
+
+  if (error) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-white/50">出了点问题，请返回重试</p>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen flex items-center justify-center pb-20">
+      {stage === "waiting" && (
+        <WaitingAnimation onComplete={() => setStage("card")} />
+      )}
+
+      {stage === "card" && reportData && (
+        <ServiceCard
+          animalName={reportData.answers.scene1.animalName}
+          roleTitle={reportData.roleTitle}
+          cardTitle={reportData.cardTitle}
+          cardInterpretation={reportData.cardInterpretation}
+          onUnlock={handleUnlock}
+        />
+      )}
+
+      {stage === "report" && reportData && (
+        <FullReport
+          report={reportData.fullReport}
+          scores={reportData.scores}
+          roleTitle={reportData.roleTitle}
+          onSave={handleSave}
+        />
+      )}
+    </main>
+  );
+}
