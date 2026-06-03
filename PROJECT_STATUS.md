@@ -4,10 +4,23 @@
 
 ## 当前阶段
 
-**Phase 2: Supabase Auth 集成** — 设计文档已完成，待用户创建 Supabase 项目后开始实现
+**Phase 12: Supabase Auth 集成 — 实现中** — 6/12 tasks 完成
 
-### MVP 完成状态（回顾）
-所有 23 个任务已实现，17 个测试全部通过，TypeScript 类型检查通过
+### 已完成 (Task 1-6)
+- ✅ 安装 @supabase/supabase-js + @supabase/ssr
+- ✅ 更新 Prisma schema（移除 User 模型，迁移到 Supabase PostgreSQL）
+- ✅ 创建 Supabase browser/server clients
+- ✅ 创建 auth middleware（session 自动刷新）
+- ✅ 创建 UserContext（auth 状态管理）
+- ✅ 创建 AuthModal（登录/注册弹窗）
+
+### 待完成 (Task 7-12)
+- ⏸️ layout 接入 UserProvider + AuthModal
+- ⏸️ API route: /api/reports/sync
+- ⏸️ 结果页改造（注册保存报告）
+- ⏸️ 个人中心改造（云端数据）
+- ⏸️ TypeScript 类型检查
+- ⏸️ 最终验证
 
 ## 整体进度
 
@@ -28,7 +41,8 @@
 | Phase 9: API 路由 | ✅ Task 20 |
 | Phase 10: Prisma Schema | ✅ Task 21 |
 | Phase 11: 集成验证 | ✅ Task 22-23 |
-| Phase 12: Supabase Auth | ⏸️ 待开始 — 依赖用户创建 Supabase 项目 |
+| Phase 12: Supabase Auth | 🟡 实现中 (6/12) |
+| Supabase Auth 实现计划 | ✅ [plans/2026-06-03-supabase-auth.md](docs/superpowers/plans/2026-06-03-supabase-auth.md) |
 
 ## 验证结果
 
@@ -63,9 +77,7 @@ Next.js 16 (App Router + Turbopack) + TypeScript + Tailwind CSS v4 + shadcn/ui v
 
 ## 下一步
 
-1. **用户前置操作**：注册 Supabase 账号 → 创建项目 → 获取连接信息
-2. **进入实现计划**：通过 writing-plans skill 生成详细实现步骤
-3. **Phase 12 实现**：安装依赖、改造数据模型、AuthModal、结果页 & 个人中心改造
+继续执行 Task 7-12：layout 接入、API route、页面改造、类型检查、最终验证
 
 ### 后续待办
 - 部署到 Vercel
