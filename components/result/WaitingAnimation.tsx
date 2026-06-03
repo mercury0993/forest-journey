@@ -4,11 +4,12 @@ import { motion } from "framer-motion";
 import { useEffect } from "react";
 
 interface Props {
-  onComplete: () => void;
+  onComplete?: () => void;
 }
 
 export default function WaitingAnimation({ onComplete }: Props) {
   useEffect(() => {
+    if (!onComplete) return;
     const timer = setTimeout(onComplete, 4000);
     return () => clearTimeout(timer);
   }, [onComplete]);

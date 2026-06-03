@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import WaitingAnimation from "@/components/result/WaitingAnimation";
 import ServiceCard from "@/components/result/ServiceCard";
@@ -84,6 +84,13 @@ export default function ResultPage() {
     }
   }, [router]);
 
+  // Transition to card stage when report data is ready
+  useEffect(() => {
+    if (reportData && stage === "waiting") {
+      setStage("card");
+    }
+  }, [reportData, stage]);
+
   // When user becomes authenticated after signup, sync the report to cloud
   useEffect(() => {
     if (!user || !reportData || syncedToCloud || syncing) return;
@@ -145,8 +152,8 @@ export default function ResultPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center pb-20">
-      {stage === "waiting" && (
-        <WaitingAnimation onComplete={() => setStage("card")} />
+      {stage === "waiting" && !reportData && (
+        <WaitingAnimation />
       )}
 
       {stage === "card" && reportData && (

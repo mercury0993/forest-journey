@@ -43,6 +43,7 @@ Return ONLY valid JSON, no other text.`;
           temperature: 0.3,
           max_tokens: 200,
         }),
+        signal: AbortSignal.timeout(8000),
       });
 
       if (response.ok) {
