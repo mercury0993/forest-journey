@@ -84,14 +84,14 @@ describe("calculateScores", () => {
 
   it("easy crossing method increases resilience moderately", () => {
     const nlp: NLPResult = { animal1Name: "", animal1Category: "unknown", animal2Name: "", animal2Category: "unknown", animal1Sentiment: "neutral", animal2Sentiment: "neutral" };
-    const answers = { ...baseAnswers, scene3: { ...baseAnswers.scene3, crossingMethod: "easy" } };
+    const answers = { ...baseAnswers, scene3: { ...baseAnswers.scene3, crossingMethod: "easy" as const } };
     const scores = calculateScores(answers, nlp);
     expect(scores.resilience).toBe(60);
   });
 
   it("detour crossing method increases resilience moderately", () => {
     const nlp: NLPResult = { animal1Name: "", animal1Category: "unknown", animal2Name: "", animal2Category: "unknown", animal1Sentiment: "neutral", animal2Sentiment: "neutral" };
-    const answers = { ...baseAnswers, scene3: { ...baseAnswers.scene3, crossingMethod: "detour" } };
+    const answers = { ...baseAnswers, scene3: { ...baseAnswers.scene3, crossingMethod: "detour" as const } };
     const scores = calculateScores(answers, nlp);
     expect(scores.resilience).toBe(60);
   });

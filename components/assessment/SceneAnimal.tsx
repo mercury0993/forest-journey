@@ -34,7 +34,7 @@ export default function SceneAnimal({ sceneNumber, isScene4, onComplete }: Props
   };
 
   const handleSkip = () => {
-    onComplete({ animalName: "", description: "", followUp1: "", followUp2: "", skipped: true, firstFeeling: "" });
+    onComplete({ animalName: "", description: "", followUp1: "", followUp2: "", skipped: true });
   };
 
   const handleNext = () => {

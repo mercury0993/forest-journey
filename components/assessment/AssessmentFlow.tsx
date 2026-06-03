@@ -40,10 +40,11 @@ export default function AssessmentFlow() {
     setScene(4);
   }, [setScene3]);
 
-  const handleScene4Complete = useCallback((data: Parameters<typeof setScene4>[0]) => {
-    setScene4(data);
+  const handleScene4Complete = useCallback((data: { animalName: string; description: string; followUp1: string; followUp2: string; skipped: boolean; firstFeeling?: string }) => {
+    const scene4Data = { ...data, firstFeeling: (data.firstFeeling || "curious") as "warm_joy" | "care" | "equal_respect" | "nervous" | "curious" };
+    setScene4(scene4Data);
     clearCurrentAssessment();
-    localStorage.setItem("fj_latest_answers", JSON.stringify({ ...answers, scene4: data }));
+    localStorage.setItem("fj_latest_answers", JSON.stringify({ ...answers, scene4: scene4Data }));
     router.push("/result");
   }, [setScene4, answers, router]);
 
