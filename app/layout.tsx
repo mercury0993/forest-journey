@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { AudioProvider } from "@/context/AudioContext";
 import { AssessmentProvider } from "@/context/AssessmentContext";
+import { UserProvider } from "@/context/UserContext";
 import ForestLayout from "@/components/layout/ForestLayout";
 import BottomNav from "@/components/layout/BottomNav";
 import AudioToggle from "@/components/shared/AudioToggle";
+import AuthModal from "@/components/auth/AuthModal";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,11 +19,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased">
         <AudioProvider>
           <AssessmentProvider>
-            <ForestLayout>
-              {children}
-              <AudioToggle />
-              <BottomNav />
-            </ForestLayout>
+            <UserProvider>
+              <ForestLayout>
+                {children}
+                <AudioToggle />
+                <BottomNav />
+              </ForestLayout>
+              <AuthModal />
+            </UserProvider>
           </AssessmentProvider>
         </AudioProvider>
       </body>
