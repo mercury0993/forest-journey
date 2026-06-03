@@ -1,10 +1,13 @@
 # Forest Journey — 项目状态
 
-> 最后更新：2026-06-03 14:15
+> 最后更新：2026-06-03
 
 ## 当前阶段
 
-**MVP 开发完成** — 所有 23 个任务已实现，17 个测试全部通过，TypeScript 类型检查通过
+**Phase 2: Supabase Auth 集成** — 设计文档已完成，待用户创建 Supabase 项目后开始实现
+
+### MVP 完成状态（回顾）
+所有 23 个任务已实现，17 个测试全部通过，TypeScript 类型检查通过
 
 ## 整体进度
 
@@ -12,6 +15,7 @@
 |---|---|
 | Brainstorming / 需求对齐 | ✅ 完成 |
 | 设计文档 | ✅ [specs/2026-06-02-forest-journey-mvp-design.md](docs/superpowers/specs/2026-06-02-forest-journey-mvp-design.md) |
+| Supabase Auth 设计文档 | ✅ [specs/2026-06-03-supabase-auth-design.md](docs/superpowers/specs/2026-06-03-supabase-auth-design.md) |
 | 实现计划 | ✅ [plans/2026-06-02-forest-journey-mvp.md](docs/superpowers/plans/2026-06-02-forest-journey-mvp.md) |
 | Phase 1: 项目脚手架 | ✅ Task 1-2 |
 | Phase 2: 核心库 | ✅ Task 3-6 |
@@ -24,6 +28,7 @@
 | Phase 9: API 路由 | ✅ Task 20 |
 | Phase 10: Prisma Schema | ✅ Task 21 |
 | Phase 11: 集成验证 | ✅ Task 22-23 |
+| Phase 12: Supabase Auth | ⏸️ 待开始 — 依赖用户创建 Supabase 项目 |
 
 ## 验证结果
 
@@ -56,10 +61,15 @@
 
 Next.js 16 (App Router + Turbopack) + TypeScript + Tailwind CSS v4 + shadcn/ui v4 + Framer Motion + Vitest + Prisma v7
 
-## 下一步建议
+## 下一步
 
-- 配置 Supabase + NextAuth.js（Phase 2 功能）
+1. **用户前置操作**：注册 Supabase 账号 → 创建项目 → 获取连接信息
+2. **进入实现计划**：通过 writing-plans skill 生成详细实现步骤
+3. **Phase 12 实现**：安装依赖、改造数据模型、AuthModal、结果页 & 个人中心改造
+
+### 后续待办
 - 部署到 Vercel
+- OAuth 登录（Google/微信）
 - 添加真实的森林白噪音 MP3 文件
 - OpenAI API key 配置后可启用智能 NLP 分析
 - 设计动物 SVG 插画库
