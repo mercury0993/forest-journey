@@ -6,7 +6,7 @@
 
 **Phase 12: Supabase Auth 集成 — 完成** — 12/12 tasks 完成
 
-- ✅ 安装依赖 → 更新 Prisma schema → Supabase clients → middleware
+- ✅ 安装依赖 → 更新 Prisma schema → Supabase clients → proxy
 - ✅ UserContext + AuthModal → layout 接入
 - ✅ API route (POST/GET) → 结果页改造 → 个人中心改造
 - ✅ TypeScript 0 错误 → 17/17 测试通过 → 所有页面 200 OK
@@ -50,6 +50,11 @@
   - `/assessment` — 4 场景评估流程
   - `/result` — 等待动画 → 服务卡 → 完整报告
   - `/profile` — 历史记录（localStorage）+ 设置
+
+## 变更记录
+
+- **middleware → proxy 迁移**：Next.js 16 废弃 middleware 文件惯例，重命名为 proxy.ts
+- **Prisma v7 配置**：datasource url 移至 prisma.config.ts，用 env() helper
 
 ## Bug 修复记录
 
