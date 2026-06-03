@@ -1,6 +1,6 @@
 # Forest Journey — 项目状态
 
-> 最后更新：2026-06-03 14:00
+> 最后更新：2026-06-03 14:15
 
 ## 当前阶段
 
@@ -36,6 +36,11 @@
   - `/assessment` — 4 场景评估流程
   - `/result` — 等待动画 → 服务卡 → 完整报告
   - `/profile` — 历史记录（localStorage）+ 设置
+
+## Bug 修复记录
+
+- **默认模板冲突**：删除 `app/page.tsx`（create-next-app 默认模板），避免与 `app/(public)/page.tsx` 路由冲突
+- **React setState 错误**：`AssessmentFlow` 中 `restoreFromStorage()` 从渲染期间调用改为 `useEffect` 中调用
 
 ## MVP 核心决策
 
