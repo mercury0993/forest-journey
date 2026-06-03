@@ -10,6 +10,7 @@
 - ✅ UserContext + AuthModal → layout 接入
 - ✅ API route (POST/GET) → 结果页改造 → 个人中心改造
 - ✅ TypeScript 0 错误 → 17/17 测试通过 → 所有页面 200 OK
+- ✅ **Vercel 部署成功** — [https://forest-journey.vercel.app](你的实际地址)
 
 ### 验证结果
 - **17/17** 测试通过
@@ -55,6 +56,9 @@
 
 - **middleware → proxy 迁移**：Next.js 16 废弃 middleware 文件惯例，重命名为 proxy.ts
 - **Prisma v7 配置**：datasource url 移至 prisma.config.ts，用 env() helper
+- **PrismaClient 懒加载**：创建 lib/prisma.ts Proxy 单例，避免 Vercel 构建时初始化 crash
+- **构建修复**：package.json build 脚本加入 prisma generate，添加 postinstall 钩子
+- **结果页修复**：等待动画不再定时切页，改为报告数据就绪后展示；OpenAI 请求加 8s 超时
 
 ## Bug 修复记录
 
