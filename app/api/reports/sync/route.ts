@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
