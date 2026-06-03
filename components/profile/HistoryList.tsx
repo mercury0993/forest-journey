@@ -5,18 +5,33 @@ import { getReports } from "@/lib/storage";
 import { ReportData } from "@/lib/types";
 import { getAnimalIllustration } from "@/lib/animals";
 import FullReport from "@/components/result/FullReport";
+import { useUser } from "@/context/UserContext";
 
-export default function HistoryList() {
-  const [reports, setReports] = useState<ReportData[]>([]);
+interface CloudReport {
+  id: string;
+  roleTitle: string;
+  fullReport: Record<string, unknown>;
+  dimensions: Record<string, number>;
+  isPaid: boolean;
+  createdAt: string;
+}
+
+interface Props {
+  cloudReports: CloudReport[];
+  cloudLoading: boolean;
+}
+
+export default function HistoryList({ cloudReports, cloudLoading }: Props) {
+  const { user } = useUser();
+  const [localReports, setLocalReports] = useState<ReportData[]>([]);
   const [selectedReport, setSelectedReport] = useState<ReportData | null>(null);
+  const [selectedCloudReport, setSelectedCloudReport] = useState<CloudReport | null>(null);
 
   useEffect(() => {
-    setReports(getReports());
+    setLocalReports(getReports());
   }, []);
 
-  const handleSave = () => {
-    // already saved when unlocked
-  };
+  const handleSave = () => {};
 
   if (selectedReport) {
     return (
@@ -37,7 +52,39 @@ export default function HistoryList() {
     );
   }
 
-  if (reports.length === 0) {
+  if (selectedCloudReport) {
+    return (
+      <div>
+        <button
+          onClick={() => setSelectedCloudReport(null)}
+          className="mb-6 text-green-400/60 hover:text-green-400 text-sm transition-colors"
+        >
+          ← 返回列表
+        </button>
+        <FullReport
+          report={selectedCloudReport.fullReport as {
+            archetype: string;
+            rules: string;
+            encounter: string;
+            prescription: string;
+          }}
+          scores={selectedCloudReport.dimensions as {
+            empathy: number;
+            rule: number;
+            resilience: number;
+            role: number;
+          }}
+          roleTitle={selectedCloudReport.roleTitle}
+          onSave={handleSave}
+        />
+      </div>
+    );
+  }
+
+  const hasCloudReports = cloudReports.length > 0;
+  const hasLocalReports = localReports.length > 0;
+
+  if (!hasCloudReports && !hasLocalReports) {
     return (
       <div className="text-center py-20">
         <div className="text-5xl mb-4">🌿</div>
@@ -49,35 +96,69 @@ export default function HistoryList() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-green-200/70 text-sm font-medium mb-4">
-        历史测评（本设备 · 最多5条）
-      </h2>
-
-      {reports.map((report) => (
-        <button
-          key={report.id}
-          onClick={() => setSelectedReport(report)}
-          className="w-full text-left p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-green-500/30 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">
-              {report.answers.scene1.animalName
-                ? getAnimalIllustration(report.answers.scene1.animalName).emoji
-                : "🌿"}
-            </span>
-            <div className="flex-1 min-w-0">
-              <div className="text-white/80 font-medium truncate">
-                {report.cardTitle}
-              </div>
-              <div className="text-white/30 text-xs mt-0.5">
-                {new Date(report.createdAt).toLocaleDateString("zh-CN")}
-                {report.isPaid ? " · 已解锁" : " · 未解锁"}
-              </div>
+      {user && (
+        <div className="mb-6">
+          <h2 className="text-green-200/70 text-sm font-medium mb-3">云端报告</h2>
+          {cloudLoading ? (
+            <p className="text-white/20 text-sm">加载中...</p>
+          ) : cloudReports.length === 0 ? (
+            <p className="text-white/20 text-sm">暂无云端报告</p>
+          ) : (
+            <div className="space-y-3">
+              {cloudReports.map((report) => (
+                <button
+                  key={report.id}
+                  onClick={() => setSelectedCloudReport(report)}
+                  className="w-full text-left p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-green-500/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🌿</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white/80 font-medium truncate">{report.roleTitle}</div>
+                      <div className="text-white/30 text-xs mt-0.5">
+                        {new Date(report.createdAt).toLocaleDateString("zh-CN")}
+                        {report.isPaid ? " · 已解锁" : " · 未解锁"}
+                      </div>
+                    </div>
+                    <span className="text-white/20 text-sm">→</span>
+                  </div>
+                </button>
+              ))}
             </div>
-            <span className="text-white/20 text-sm">→</span>
+          )}
+        </div>
+      )}
+
+      {hasLocalReports && (
+        <div>
+          <h2 className="text-green-200/70 text-sm font-medium mb-3">本地记录（本设备 · 最多5条）</h2>
+          <div className="space-y-3">
+            {localReports.map((report) => (
+              <button
+                key={report.id}
+                onClick={() => setSelectedReport(report)}
+                className="w-full text-left p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-green-500/30 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">
+                    {report.answers.scene1.animalName
+                      ? getAnimalIllustration(report.answers.scene1.animalName).emoji
+                      : "🌿"}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-white/80 font-medium truncate">{report.cardTitle}</div>
+                    <div className="text-white/30 text-xs mt-0.5">
+                      {new Date(report.createdAt).toLocaleDateString("zh-CN")}
+                      {report.isPaid ? " · 已解锁" : " · 未解锁"}
+                    </div>
+                  </div>
+                  <span className="text-white/20 text-sm">→</span>
+                </div>
+              </button>
+            ))}
           </div>
-        </button>
-      ))}
+        </div>
+      )}
 
       <div className="mt-8 pt-6 border-t border-white/[0.06]">
         <h3 className="text-green-200/70 text-sm font-medium mb-3">设置</h3>
@@ -86,7 +167,7 @@ export default function HistoryList() {
           <button
             onClick={() => {
               localStorage.clear();
-              setReports([]);
+              setLocalReports([]);
             }}
             className="py-2 hover:text-white/60 transition-colors block w-full text-left"
           >
