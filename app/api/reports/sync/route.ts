@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { PrismaClient } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -42,8 +43,8 @@ export async function POST(request: NextRequest) {
           assessmentId: assessment.id,
           userId: user.id,
           roleTitle: report.roleTitle,
-          fullReport: report.fullReport as Record<string, unknown>,
-          dimensions: report.dimensions as Record<string, unknown>,
+          fullReport: report.fullReport as Prisma.InputJsonValue,
+          dimensions: report.dimensions as Prisma.InputJsonValue,
           isPaid: report.isPaid,
           createdAt: new Date(report.createdAt),
         },
