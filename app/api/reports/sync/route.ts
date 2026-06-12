@@ -12,21 +12,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
+    const contentLength = request.headers.get("content-length");
+    if (contentLength && parseInt(contentLength) > 65536) {
+      return NextResponse.json({ error: "Request too large" }, { status: 413 });
+    }
+
     const body = await request.json();
-    const { reports } = body as {
-      reports: Array<{
-        id: string;
-        createdAt: string;
-        roleTitle: string;
-        fullReport: Record<string, unknown>;
-        dimensions: Record<string, number>;
-        isPaid: boolean;
-      }>;
-    };
+    const { reports } = body;
+
+    if (!Array.isArray(reports) || reports.length === 0 || reports.length > 10) {
+      return NextResponse.json({ error: "Invalid reports array" }, { status: 400 });
+    }
+
+    for (const report of reports) {
+      if (
+        typeof report.id !== "string" || report.id.length > 50 ||
+        typeof report.createdAt !== "string" || report.createdAt.length > 30 ||
+        typeof report.roleTitle !== "string" || report.roleTitle.length > 100
+      ) {
+        return NextResponse.json({ error: "Invalid report fields" }, { status: 400 });
+      }
+    }
+
+    const typedReports = reports as Array<{
+      id: string;
+      createdAt: string;
+      roleTitle: string;
+      fullReport: Record<string, unknown>;
+      dimensions: Record<string, number>;
+      isPaid: boolean;
+    }>;
 
     const synced: string[] = [];
 
-    for (const report of reports) {
+    for (const report of typedReports) {
       const assessment = await prisma.assessment.create({
         data: {
           userId: user.id,
@@ -43,7 +62,7 @@ export async function POST(request: NextRequest) {
           roleTitle: report.roleTitle,
           fullReport: report.fullReport as Prisma.InputJsonValue,
           dimensions: report.dimensions as Prisma.InputJsonValue,
-          isPaid: report.isPaid,
+          isPaid: true,
           createdAt: new Date(report.createdAt),
         },
       });

@@ -8,7 +8,7 @@ datasource db {
 
 model Assessment {
   id         String    @id @default(cuid())
-  userId     String?   @map("user_id")
+  userId     String?   @map("user_id") @db.Uuid
   status     String    @default("in_progress")
   startedAt  DateTime  @default(now()) @map("started_at")
   finishedAt DateTime? @map("finished_at")
@@ -34,7 +34,7 @@ model Answer {
 model Report {
   id           String  @id @default(cuid())
   assessmentId String  @map("assessment_id")
-  userId       String? @map("user_id")
+  userId       String? @map("user_id") @db.Uuid
   roleTitle    String  @map("role_title")
   cardImageUrl String? @map("card_image_url")
   fullReport   Json    @map("full_report_content")

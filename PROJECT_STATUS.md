@@ -1,6 +1,6 @@
 # Forest Journey — 项目状态
 
-> 最后更新：2026-06-03
+> 最后更新：2026-06-12
 
 ## 当前阶段
 
@@ -89,6 +89,24 @@ Next.js 16 (App Router + Turbopack) + TypeScript + Tailwind CSS v4 + shadcn/ui v
 - 添加真实的森林白噪音 MP3 文件
 - OpenAI API key 配置后可启用智能 NLP 分析
 - 设计动物 SVG 插画库
+
+### 🔒 安全审查待办（2026-06-12 审查）
+
+**🔴 高危：**
+- [x] **支付 mock 移除**：`isPaid` 改为始终 `true`，ServiceCard 显示划线价 + "限时免费"（2026-06-12 已修复）
+- [x] **数据库 RLS 启用**：assessments/answers/reports 三表已启用 RLS，`user_id` 列已改为 uuid 类型（2026-06-12 已修复）
+
+**🟡 中危：**
+- [x] **同步接口输入校验**：reports 数组长度 ≤10，字段类型/长度校验（2026-06-12 已修复）
+- [x] **速率限制**：`/api/report` 每 IP 每分钟 10 次，`lib/rate-limit.ts` 内存实现（2026-06-12 已修复）
+- [x] **Prompt 注入防护**：用户文本用 `JSON.stringify()` 包裹，输入限长 2000 字符（2026-06-12 已修复）
+- [x] **密码强度**：`minLength` 6 → 8（2026-06-12 已修复）
+- [x] **请求体大小限制**：`/api/report` 8KB，`/api/reports/sync` 64KB（2026-06-12 已修复）
+
+**🟢 低危：**
+- [ ] 邮箱验证（Supabase Dashboard 启用）
+- [ ] 密码重置流程（`resetPasswordForEmail` API + UI 入口）
+- [ ] localStorage 数据加密（可选，当前风险可接受）
 
 ---
 

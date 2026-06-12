@@ -71,7 +71,7 @@ export default function ResultPage() {
           cardTitle: match.cardTitle,
           cardInterpretation: match.cardInterpretation,
           fullReport: match.fullReport,
-          isPaid: false,
+          isPaid: true,
         };
 
         setReportData(report);
@@ -126,17 +126,10 @@ export default function ResultPage() {
 
   const handleUnlock = () => {
     if (!reportData) return;
-    const updated = { ...reportData, isPaid: true };
-    setReportData(updated);
-    saveReport(updated);
     setStage("report");
   };
 
-  const handleSave = () => {
-    if (reportData && !reportData.isPaid) {
-      saveReport({ ...reportData, isPaid: true });
-    }
-  };
+  const handleSave = () => {};
 
   const handleSaveToCloud = () => {
     openAuthModal("signup");

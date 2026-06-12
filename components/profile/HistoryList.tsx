@@ -117,7 +117,6 @@ export default function HistoryList({ cloudReports, cloudLoading }: Props) {
                       <div className="text-white/80 font-medium truncate">{report.roleTitle}</div>
                       <div className="text-white/30 text-xs mt-0.5">
                         {new Date(report.createdAt).toLocaleDateString("zh-CN")}
-                        {report.isPaid ? " · 已解锁" : " · 未解锁"}
                       </div>
                     </div>
                     <span className="text-white/20 text-sm">→</span>

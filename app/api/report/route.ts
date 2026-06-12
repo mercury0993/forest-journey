@@ -1,13 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { nlpFallback } from "@/lib/nlp-fallback";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
+    const contentLength = request.headers.get("content-length");
+    if (contentLength && parseInt(contentLength) > 8192) {
+      return NextResponse.json({ error: "Request too large" }, { status: 413 });
+    }
+
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    if (!rateLimit(ip)) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const body = await request.json();
     const { animal1Text, animal2Text, animal2Feeling } = body;
 
     if (!animal1Text || !animal2Text) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    if (animal1Text.length > 2000 || animal2Text.length > 2000) {
+      return NextResponse.json({ error: "Input too long" }, { status: 400 });
     }
 
     const openaiKey = process.env.OPENAI_API_KEY;
@@ -25,9 +40,9 @@ export async function POST(request: NextRequest) {
 - animal1Sentiment: one of "positive", "neutral", or "negative" (tone of the description)
 - animal2Sentiment: one of "positive", "neutral", or "negative"
 
-Animal 1 description: "${animal1Text}"
-Animal 2 description: "${animal2Text}"
-First feeling toward animal 2: "${animal2Feeling || "not specified"}"
+Animal 1 description: ${JSON.stringify(animal1Text)}
+Animal 2 description: ${JSON.stringify(animal2Text)}
+First feeling toward animal 2: ${JSON.stringify(animal2Feeling || "not specified")}
 
 Return ONLY valid JSON, no other text.`;
 

@@ -59,9 +59,12 @@ export default function ServiceCard({ animalName, roleTitle, cardTitle, cardInte
           onClick={onUnlock}
           className="px-8 py-3.5 rounded-full bg-gradient-to-r from-amber-600 to-amber-500 text-white font-medium shadow-lg shadow-amber-900/20 hover:shadow-amber-800/30 hover:scale-105 transition-all duration-300"
         >
-          ✨ 查看完整心灵图谱 →
+          查看完整心灵图谱 →
         </button>
-        <p className="text-white/20 text-xs mt-2">¥9.99 解锁完整报告</p>
+        <p className="text-white/20 text-xs mt-2">
+          <span className="line-through">¥9.99</span>
+          {" "}限时免费
+        </p>
       </motion.div>
     </motion.div>
   );
