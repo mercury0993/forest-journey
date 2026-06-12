@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const openaiKey = process.env.OPENAI_API_KEY;
 
     if (!openaiKey) {
-      return NextResponse.json(nlpFallback(animal1Text, animal2Text, animal2Feeling || ""));
+      return NextResponse.json({ data: nlpFallback(animal1Text, animal2Text, animal2Feeling || "") });
     }
 
     try {
@@ -53,7 +53,7 @@ Return ONLY valid JSON, no other text.`;
           const match = content.match(/\{[\s\S]*\}/);
           if (match) {
             const parsed = JSON.parse(match[0]);
-            return NextResponse.json(parsed);
+            return NextResponse.json({ data: parsed });
           }
         }
       }
@@ -61,7 +61,7 @@ Return ONLY valid JSON, no other text.`;
       // OpenAI failed — fall through to regex fallback
     }
 
-    return NextResponse.json(nlpFallback(animal1Text, animal2Text, animal2Feeling || ""));
+    return NextResponse.json({ data: nlpFallback(animal1Text, animal2Text, animal2Feeling || "") });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

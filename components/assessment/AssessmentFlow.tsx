@@ -7,7 +7,7 @@ import SceneAnimal from "./SceneAnimal";
 import SceneTable from "./SceneTable";
 import SceneWall from "./SceneWall";
 import { useAssessment } from "@/context/AssessmentContext";
-import { clearCurrentAssessment } from "@/lib/storage";
+import { clearCurrentAssessment, saveLatestAnswers } from "@/lib/storage";
 
 type SceneId = 1 | 2 | 3 | 4;
 
@@ -42,7 +42,7 @@ export default function AssessmentFlow() {
     const scene4Data = { ...data, firstFeeling: (data.firstFeeling || "curious") as "warm_joy" | "care" | "equal_respect" | "nervous" | "curious" };
     setScene4(scene4Data);
     clearCurrentAssessment();
-    localStorage.setItem("fj_latest_answers", JSON.stringify({ ...answers, scene4: scene4Data }));
+    saveLatestAnswers({ ...answers, scene4: scene4Data });
     router.push("/result");
   }, [setScene4, answers, router]);
 

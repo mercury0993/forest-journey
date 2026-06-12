@@ -2,6 +2,7 @@ import { AssessmentAnswers, ReportData } from "./types";
 
 const KEYS = {
   currentAssessment: "fj_current_assessment",
+  latestAnswers: "fj_latest_answers",
   reports: "fj_reports",
   audioOn: "fj_audio_on",
 } as const;
@@ -25,6 +26,25 @@ export function loadCurrentAssessment(): AssessmentAnswers | null {
 
 export function clearCurrentAssessment(): void {
   localStorage.removeItem(KEYS.currentAssessment);
+}
+
+export function saveLatestAnswers(answers: AssessmentAnswers & { scene4: Record<string, unknown> }): void {
+  try {
+    localStorage.setItem(KEYS.latestAnswers, JSON.stringify(answers));
+  } catch { /* storage full, silently ignore */ }
+}
+
+export function loadLatestAnswers(): Record<string, unknown> | null {
+  try {
+    const raw = localStorage.getItem(KEYS.latestAnswers);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearLatestAnswers(): void {
+  localStorage.removeItem(KEYS.latestAnswers);
 }
 
 export function getReports(): ReportData[] {

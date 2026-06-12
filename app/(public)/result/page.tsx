@@ -7,7 +7,7 @@ import ServiceCard from "@/components/result/ServiceCard";
 import FullReport from "@/components/result/FullReport";
 import { calculateScores, matchTemplate } from "@/lib/mapping-engine";
 import { nlpFallback } from "@/lib/nlp-fallback";
-import { saveReport } from "@/lib/storage";
+import { saveReport, loadLatestAnswers, clearLatestAnswers } from "@/lib/storage";
 import { useUser } from "@/context/UserContext";
 import { AssessmentAnswers, ReportData } from "@/lib/types";
 
@@ -23,14 +23,14 @@ export default function ResultPage() {
   const [syncedToCloud, setSyncedToCloud] = useState(false);
 
   useEffect(() => {
-    const raw = localStorage.getItem("fj_latest_answers");
+    const raw = loadLatestAnswers();
     if (!raw) {
       router.push("/");
       return;
     }
 
     try {
-      const answers: AssessmentAnswers = JSON.parse(raw);
+      const answers = raw as unknown as AssessmentAnswers;
 
       const runNLP = async () => {
         let nlpResult;
@@ -45,7 +45,7 @@ export default function ResultPage() {
             }),
           });
           if (res.ok) {
-            nlpResult = await res.json();
+            nlpResult = (await res.json()).data;
           } else {
             throw new Error("API failed");
           }
@@ -75,7 +75,7 @@ export default function ResultPage() {
         };
 
         setReportData(report);
-        localStorage.removeItem("fj_latest_answers");
+        clearLatestAnswers();
       };
 
       runNLP();
