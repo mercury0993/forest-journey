@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { toPng } from "html-to-image";
 import WaitingAnimation from "@/components/result/WaitingAnimation";
 import ServiceCard from "@/components/result/ServiceCard";
 import FullReport from "@/components/result/FullReport";
+import ShareCardImage from "@/components/result/ShareCardImage";
 import { calculateScores, matchTemplate } from "@/lib/mapping-engine";
 import { nlpFallback } from "@/lib/nlp-fallback";
 import { saveReport, loadLatestAnswers, clearLatestAnswers } from "@/lib/storage";
@@ -21,6 +23,37 @@ export default function ResultPage() {
   const [error, setError] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncedToCloud, setSyncedToCloud] = useState(false);
+  const shareRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadShareCard = useCallback(async () => {
+    if (!shareRef.current) return;
+    try {
+      const dataUrl = await toPng(shareRef.current, {
+        pixelRatio: 2,
+        backgroundColor: "#061208",
+      });
+      const blob = await (await fetch(dataUrl)).blob();
+
+      // showSaveFilePicker: lets user choose save location (Chrome/Edge)
+      if ("showSaveFilePicker" in window) {
+        const handle = await (window as { showSaveFilePicker: (opts: { suggestedName: string; types: Array<{ description: string; accept: Record<string, string[]> }> }) => Promise<FileSystemFileHandle> }).showSaveFilePicker({
+          suggestedName: "forest-journey-card.png",
+          types: [{ description: "PNG Image", accept: { "image/png": [".png"] } }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+      } else {
+        const link = document.createElement("a");
+        link.download = "forest-journey-card.png";
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+    } catch {
+      // Silently fail — download is a bonus feature
+    }
+  }, []);
 
   useEffect(() => {
     const raw = loadLatestAnswers();
@@ -158,8 +191,16 @@ export default function ResultPage() {
             cardInterpretation={reportData.cardInterpretation}
             onUnlock={handleUnlock}
           />
+          <div className="mt-6">
+            <button
+              onClick={handleDownloadShareCard}
+              className="px-6 py-2.5 rounded-full border border-amber-500/30 text-amber-400/80 text-sm hover:bg-amber-500/10 transition-colors"
+            >
+              下载分享卡片
+            </button>
+          </div>
           {!user && !syncedToCloud && (
-            <div className="mt-6">
+            <div className="mt-3">
               <button
                 onClick={handleSaveToCloud}
                 className="px-6 py-2.5 rounded-full border border-green-500/30 text-green-400/80 text-sm hover:bg-green-500/10 transition-colors"
@@ -175,13 +216,36 @@ export default function ResultPage() {
       )}
 
       {stage === "report" && reportData && (
-        <FullReport
-          report={reportData.fullReport}
-          scores={reportData.scores}
-          roleTitle={reportData.roleTitle}
-          onSave={handleSave}
-        />
+        <>
+          <FullReport
+            report={reportData.fullReport}
+            scores={reportData.scores}
+            roleTitle={reportData.roleTitle}
+            onSave={handleSave}
+          />
+          <div className="text-center mt-6">
+            <button
+              onClick={handleDownloadShareCard}
+              className="px-6 py-2.5 rounded-full border border-amber-500/30 text-amber-400/80 text-sm hover:bg-amber-500/10 transition-colors"
+            >
+              下载分享卡片
+            </button>
+          </div>
+        </>
       )}
+
+      {/* Hidden share card for html-to-image capture */}
+      <div className="fixed left-[-9999px] top-0" aria-hidden="true">
+        {reportData && (
+          <ShareCardImage
+            ref={shareRef}
+            animalName={reportData.answers.scene1.animalName}
+            roleTitle={reportData.roleTitle}
+            cardTitle={reportData.cardTitle}
+            cardInterpretation={reportData.cardInterpretation}
+          />
+        )}
+      </div>
     </main>
   );
 }

@@ -81,14 +81,14 @@ Next.js 16 (App Router + Turbopack) + TypeScript + Tailwind CSS v4 + shadcn/ui v
 
 ## 下一步
 
-继续执行 Task 7-12：layout 接入、API route、页面改造、类型检查、最终验证
-
 ### 后续待办
-- 部署到 Vercel
 - OAuth 登录（Google/微信）
 - 添加真实的森林白噪音 MP3 文件
-- OpenAI API key 配置后可启用智能 NLP 分析
 - 设计动物 SVG 插画库
+- 语音输入（Web Speech API）
+- 语音引导 TTS
+- 分享裂变（邀请好友解锁）
+- B 端管理后台（测评码管理、团队看板、岗位模型、报告导出）
 
 ### 🔒 安全审查待办（2026-06-12 审查）
 
