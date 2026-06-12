@@ -4,8 +4,14 @@
 
 ## 当前阶段
 
-**Phase 12: Supabase Auth 集成 — 完成** — 12/12 tasks 完成
+**Phase 13: 安全加固 + 分享卡片 — 进行中**
 
+- ✅ 安全加固（2026-06-12）：支付 mock 移除 + RLS + 速率限制 + 输入校验 + Prompt 注入防护
+- ✅ 分享卡片下载（2026-06-12）：html-to-image 生成 PNG，支持 Chrome/Edge 另存为对话框
+- [ ] 推送到 Vercel 部署验证
+
+### Phase 12 回顾
+**Phase 12: Supabase Auth 集成 — 完成** — 12/12 tasks 完成
 - ✅ 安装依赖 → 更新 Prisma schema → Supabase clients → proxy
 - ✅ UserContext + AuthModal → layout 接入
 - ✅ API route (POST/GET) → 结果页改造 → 个人中心改造
@@ -59,6 +65,8 @@
 - **PrismaClient 懒加载**：创建 lib/prisma.ts Proxy 单例，避免 Vercel 构建时初始化 crash
 - **构建修复**：package.json build 脚本加入 prisma generate，添加 postinstall 钩子
 - **结果页修复**：等待动画不再定时切页，改为报告数据就绪后展示；OpenAI 请求加 8s 超时
+- **分享卡片下载**：html-to-image 生成 PNG，Chrome/Edge 支持"另存为"选路径；card 和 report 阶段均可下载
+- **安全加固**：支付 mock → 限时免费、RLS 三表 + uuid、速率限制、输入校验、Prompt 注入防护
 
 ## Bug 修复记录
 
@@ -68,7 +76,7 @@
 ## MVP 核心决策
 
 - 无需登录即可测评，注册保存报告
-- 支付 mock（点击解锁直接看报告，定价 ¥9.99）
+- 限时免费（划线价 ¥9.99），无需支付直接看完整报告
 - 文字输入（无语音），引导语用文字展示
 - 6 种报告模板（Euclidean distance 匹配）
 - 动物插画：emoji 映射表
