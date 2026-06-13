@@ -114,11 +114,63 @@ Next.js 16 (App Router + Turbopack) + TypeScript + Tailwind CSS v4 + shadcn/ui v
 
 | # | 项目 | 说明 | 优先级 |
 |---|---|---|---|
-| 1 | Google OAuth 登录 | 降低注册门槛，需 Google Cloud 配置 | 🔐 中 |
-| 4 | 语音输入 | Web Speech API 浏览器原生，手机上体验好 | 🎤 中 |
+| 1 | Google OAuth 登录 | 降低注册门槛，详见下方实施指南 | 🔐 中 |
+| 2 | 语音输入 | Web Speech API 浏览器原生，手机上体验好 | 🎤 中 |
 | 5 | 语音引导 TTS | 冥想和场景引导语音，比纯文字更有沉浸感 | 🎤 低 |
 | 6 | 分享裂变 | 邀请好友注册免费解锁 | 🔗 低 |
 | 7 | B 端管理后台 | 测评码管理、团队看板、岗位模型、报告导出 | 🏢 远期 |
+
+### 🔐 Google OAuth 登录实施指南
+
+**状态：** 待执行（需先完成外部配置）
+
+#### 第一部分：外部配置（需手动操作）
+
+**1. Google Cloud Console 创建凭据**
+
+1. 打开 [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. 创建或选择项目 → 左侧菜单 "OAuth 同意屏幕"
+   - User Type 选 **External**（外部用户可用）
+   - 填写应用名 `Forest Journey`、开发者邮箱
+   - 范围无需添加（只请求邮箱和姓名）
+   - 添加测试用户（你自己的 Gmail）
+   - 发布状态设为"测试中"即可
+3. 左侧菜单 "凭据" → "创建凭据" → **OAuth 客户端 ID**
+   - 应用类型：**Web 应用**
+   - 名称：`Forest Journey`
+   - 已获授权的 JavaScript 来源：`https://forest-journey.vercel.app`（部署后加，开发时加 `http://localhost:3000`）
+   - 已获授权的重定向 URI：`https://<你的项目ID>.supabase.co/auth/v1/callback`
+     - 替换 `<你的项目ID>` 为 Supabase 项目 URL 中的 ID
+   - 创建后会弹出 Client ID 和 Client Secret，**记下来**
+
+**2. Supabase Dashboard 配置**
+
+1. 打开 [Supabase Dashboard](https://supabase.com/dashboard) → 选择项目
+2. 左侧菜单 Authentication → **Providers**
+3. 找到 **Google** → 点击展开
+4. 开启开关，填入：
+   - Client ID（从 Google Cloud Console 获取）
+   - Client Secret（从 Google Cloud Console 获取）
+5. 保存
+
+#### 第二部分：代码改动（外部配置完成后执行）
+
+改动仅涉及 `components/auth/AuthModal.tsx` 一个文件：
+
+1. 在表单下方添加分隔线 `或`
+2. 添加 Google 登录按钮，调用：
+   ```ts
+   const supabase = createClient();
+   await supabase.auth.signInWithOAuth({
+     provider: "google",
+     options: {
+       redirectTo: `${window.location.origin}/profile`,
+     },
+   });
+   ```
+3. Supabase 自动处理完整的 OAuth 2.0 流程（跳转 Google → 授权 → 回调 → 创建 session）
+
+> 核心逻辑只有 3 行，OAuth 流程由 Supabase + Google 自动完成，无需后端改动。
 
 ### 🔒 安全审查待办（2026-06-12 审查）
 
