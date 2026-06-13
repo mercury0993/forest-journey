@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef } from "react";
-import { getAnimalIllustration } from "@/lib/animals";
+import { AnimalIcon } from "@/components/animals";
 
 interface Props {
   animalName: string;
@@ -12,8 +12,6 @@ interface Props {
 
 const ShareCardImage = forwardRef<HTMLDivElement, Props>(
   ({ animalName, roleTitle, cardTitle, cardInterpretation }, ref) => {
-    const illustration = getAnimalIllustration(animalName);
-
     return (
       <div
         ref={ref}
@@ -27,9 +25,9 @@ const ShareCardImage = forwardRef<HTMLDivElement, Props>(
           </div>
         </div>
 
-        {/* Animal emoji */}
-        <div className="text-8xl mb-6 drop-shadow-[0_0_30px_rgba(74,138,74,0.3)]">
-          {illustration.emoji}
+        {/* Animal SVG */}
+        <div className="mb-6">
+          <AnimalIcon name={animalName} size={96} />
         </div>
 
         {/* Label */}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { getReports } from "@/lib/storage";
 import { ReportData } from "@/lib/types";
-import { getAnimalIllustration } from "@/lib/animals";
+import { AnimalIcon } from "@/components/animals";
 import FullReport from "@/components/result/FullReport";
 import { useUser } from "@/context/UserContext";
 
@@ -139,10 +139,12 @@ export default function HistoryList({ cloudReports, cloudLoading }: Props) {
                 className="w-full text-left p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-green-500/30 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">
-                    {report.answers.scene1.animalName
-                      ? getAnimalIllustration(report.answers.scene1.animalName).emoji
-                      : "🌿"}
+                  <span className="flex items-center">
+                    {report.answers.scene1.animalName ? (
+                      <AnimalIcon name={report.answers.scene1.animalName} size={24} />
+                    ) : (
+                      "🌿"
+                    )}
                   </span>
                   <div className="flex-1 min-w-0">
                     <div className="text-white/80 font-medium truncate">{report.cardTitle}</div>

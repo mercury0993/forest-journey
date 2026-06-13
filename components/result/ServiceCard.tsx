@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { getAnimalIllustration } from "@/lib/animals";
+import { AnimalIcon } from "@/components/animals";
 
 interface Props {
   animalName: string;
@@ -12,8 +12,6 @@ interface Props {
 }
 
 export default function ServiceCard({ animalName, roleTitle, cardTitle, cardInterpretation, onUnlock }: Props) {
-  const illustration = getAnimalIllustration(animalName);
-
   return (
     <motion.div
       className="max-w-sm mx-auto"
@@ -23,11 +21,11 @@ export default function ServiceCard({ animalName, roleTitle, cardTitle, cardInte
     >
       <div className="bg-gradient-to-b from-[#0d1f14] to-[#081208] border-2 border-green-800/50 rounded-2xl p-8 text-center shadow-2xl shadow-green-900/20">
         <motion.div
-          className="text-7xl mb-4"
+          className="mb-4 flex justify-center"
           animate={{ y: [0, -5, 0] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          {illustration.emoji}
+          <AnimalIcon name={animalName} size={96} />
         </motion.div>
 
         <p className="text-green-400/50 text-xs tracking-[0.2em] uppercase mb-2">
