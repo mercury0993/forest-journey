@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { isAdmin } from "@/lib/admin";
 
 type AuthModalMode = "login" | "signup";
 
@@ -14,6 +15,7 @@ interface UserContextType {
   openAuthModal: (mode: AuthModalMode) => void;
   closeAuthModal: () => void;
   signOut: () => Promise<void>;
+  isAdmin: boolean;
 }
 
 const UserContext = createContext<UserContextType>({
@@ -24,6 +26,7 @@ const UserContext = createContext<UserContextType>({
   openAuthModal: () => {},
   closeAuthModal: () => {},
   signOut: async () => {},
+  isAdmin: false,
 });
 
 export function UserProvider({ children }: { children: ReactNode }) {
@@ -62,7 +65,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   return (
     <UserContext.Provider
-      value={{ user, loading, authModalOpen, authModalMode, openAuthModal, closeAuthModal, signOut }}
+      value={{ user, loading, isAdmin: isAdmin(user), authModalOpen, authModalMode, openAuthModal, closeAuthModal, signOut }}
     >
       {children}
     </UserContext.Provider>
