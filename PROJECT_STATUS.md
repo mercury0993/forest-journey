@@ -19,6 +19,7 @@
 | Phase 21 | B 端团队看板 — 概览/成员列表/批次分组（子系统 3/5） | ✅ |
 | Phase 22 | B 端岗位模型 — 四维画像+候选人匹配（子系统 4/5） | ✅ |
 | Phase 23 | B 端报告导出 — CSV 批量下载（子系统 5/5） | ✅ |
+| Phase 24 | B 端完善 — 仪表盘统计/邀请码用户列表/邮箱追踪 | ✅ |
 
 ## 验证
 
@@ -63,6 +64,7 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 - **团队看板（子系统 3）**：InviteCodeUser 关联表追踪用户-码映射；`/api/admin/team` 聚合查询；三标签看板（概览面板+原型分布+四维雷达 / 成员列表可排序筛选 / 批次分组卡片）
 - **岗位模型（子系统 4）**：RoleModel 表存储岗位四维画像；滑块调节+迷你雷达图实时预览；Euclidean distance 候选人匹配排序+叠加雷达对比
 - **报告导出（子系统 5）**：CSV 格式团队数据批量导出，7 列包含原型+四维分+时间+批次，API 直接返回文件下载
+- **B 端完善**：仪表盘展示真实统计卡片+快捷入口；InviteCodeUser 增加 email 字段；邀请码详情页显示实际使用者列表含邮箱和报告；团队看板成员列表新增邮箱列
 
 ## Bug 修复
 
@@ -81,5 +83,4 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 |---|---|---|
 | 1 | 语音引导 TTS | 🎤 低 |
 | 2 | 分享裂变 | 🔗 低 |
-| 3 | B 端完善（详情页、邮箱展示等） | 🏢 远期 |
-| 4 | PDF 个人报告导出 | 🏢 远期 |
+| 3 | PDF 个人报告导出 | 🏢 远期 |
