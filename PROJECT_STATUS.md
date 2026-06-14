@@ -17,6 +17,7 @@
 | Phase 19 | B 端管理后台 — 管理员认证 + 侧边栏布局框架（子系统 1/5） | ✅ |
 | Phase 20 | B 端测评码管理 — 生成/追踪/核销（子系统 2/5） | ✅ |
 | Phase 21 | B 端团队看板 — 概览/成员列表/批次分组（子系统 3/5） | ✅ |
+| Phase 22 | B 端岗位模型 — 四维画像+候选人匹配（子系统 4/5） | ✅ |
 
 ## 验证
 
@@ -59,6 +60,7 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 - **B 端管理后台（子系统 1）**：`lib/admin.ts` isAdmin 工具（Supabase user_metadata）；`app/admin` 布局（侧边栏 + 顶栏 + 权限守卫）；BottomNav 管理员入口；5 个子系统占位页
 - **测评码管理（子系统 2）**：InviteCode 表（`FJ-` 前缀 8 位码）；管理员批量生成/列表/详情；用户注册选填邀请码自动核销
 - **团队看板（子系统 3）**：InviteCodeUser 关联表追踪用户-码映射；`/api/admin/team` 聚合查询；三标签看板（概览面板+原型分布+四维雷达 / 成员列表可排序筛选 / 批次分组卡片）
+- **岗位模型（子系统 4）**：RoleModel 表存储岗位四维画像；滑块调节+迷你雷达图实时预览；Euclidean distance 候选人匹配排序+叠加雷达对比
 
 ## Bug 修复
 
@@ -75,7 +77,7 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 
 | # | 项目 | 优先级 |
 |---|---|---|
-| 1 | **B 端子系统 4：岗位模型** | 🏢 下一步 |
+| 1 | **B 端子系统 5：报告导出** | 🏢 下一步 |
 | 2 | B 端子系统 5：报告导出 | 🏢 远期 |
 | 3 | 语音引导 TTS | 🎤 低 |
 | 4 | 分享裂变 | 🔗 低 |
