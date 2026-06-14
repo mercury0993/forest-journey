@@ -76,6 +76,7 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 **已完成：** 支付 mock 移除、RLS 三表、速率限制、输入校验、Prompt 注入防护、密码强度 8 位、请求体大小限制、密码重置流程
 
 **未完成（低优先级）：** 邮箱验证（刻意关闭，怕自锁）、localStorage 加密（风险可接受）
+**已修复（2026-06-15）：** 跨管理员码查看 + claim-code 频率限制（安全审查中危项）
 
 ## 下一步
 
