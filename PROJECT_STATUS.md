@@ -1,12 +1,16 @@
 # Forest Journey — 项目状态
 
-> 最后更新：2026-06-14
+> 最后更新：2026-06-15
 
 ## 当前阶段
 
 **Phase 13: 安全加固 + 分享卡片 — 完成** ✅
 
 **Phase 14: 动物 SVG 插画库 — 完成** ✅
+- [x] 26 种扁平矢量动物 SVG 组件（6 个体型家族）
+- [x] AnimalIcon 统一渲染组件（模糊匹配 fallback）
+- [x] ServiceCard / ShareCardImage / HistoryList 替换 emoji
+- [x] TypeScript 0 错误 + 17/17 测试通过 + 构建成功
 
 **Phase 16: Google OAuth 登录 — 完成** ✅
 - [x] `components/auth/AuthModal.tsx` — Google 登录按钮 + OAuth 流程（Supabase）
@@ -21,12 +25,11 @@
 - 📋 设计文档：[specs/2026-06-14-voice-input-design.md](docs/superpowers/specs/2026-06-14-voice-input-design.md)
 - 📋 实现计划：[plans/2026-06-14-voice-input.md](docs/superpowers/plans/2026-06-14-voice-input.md)
 
-- [x] 26 种扁平矢量动物 SVG 组件（6 个体型家族）
-- [x] AnimalIcon 统一渲染组件（模糊匹配 fallback）
-- [x] ServiceCard / ShareCardImage / HistoryList 替换 emoji
-- [x] TypeScript 0 错误 + 17/17 测试通过 + 构建成功
-- 📋 设计文档：[specs/2026-06-13-animal-svg-illustrations-design.md](docs/superpowers/specs/2026-06-13-animal-svg-illustrations-design.md)
-- 📋 实现计划：[plans/2026-06-13-animal-svg-illustrations.md](docs/superpowers/plans/2026-06-13-animal-svg-illustrations.md)（12/12 tasks 完成）
+**Phase 18: 密码重置 — 完成** ✅
+- [x] `components/auth/AuthModal.tsx` — 登录弹窗新增"忘记密码？" → 输入邮箱 → 发送重置邮件
+- [x] `app/(public)/reset-password/page.tsx` — 邮件回调页面，输入新密码完成重置
+- [x] TypeScript 0 错误 + 17/17 测试通过
+- ⚠️ 需在 Supabase → URL Configuration 添加 `/reset-password` 到 Redirect URLs
 
 **Phase 15: 森林白噪音（Web Audio API）— 完成** ✅
 
@@ -74,6 +77,7 @@
 | Phase 15: 森林白噪音 | ✅ 完成 |
 | Phase 16: Google OAuth 登录 | ✅ 完成 |
 | Phase 17: 语音输入 | ✅ 完成 |
+| Phase 18: 密码重置 | ✅ 完成 |
 | Supabase Auth 实现计划 | ✅ [plans/2026-06-03-supabase-auth.md](docs/superpowers/plans/2026-06-03-supabase-auth.md) |
 | SVG 插画设计文档 | ✅ [specs/2026-06-13-animal-svg-illustrations-design.md](docs/superpowers/specs/2026-06-13-animal-svg-illustrations-design.md) |
 | SVG 插画实现计划 | ✅ [plans/2026-06-13-animal-svg-illustrations.md](docs/superpowers/plans/2026-06-13-animal-svg-illustrations.md) |
@@ -89,6 +93,7 @@
   - `/assessment` — 4 场景评估流程
   - `/result` — 等待动画 → 服务卡 → 完整报告
   - `/profile` — 历史记录（localStorage）+ 设置
+  - `/reset-password` — 密码重置回调页
 
 ## 变更记录
 
@@ -103,6 +108,7 @@
 - **森林白噪音（Web Audio API）**：程序化合成棕噪声（风/树叶）、bandpass 溪流（LFO 调制）、随机鸟鸣（双振荡器和声），零外部文件依赖；自动处理浏览器 autoplay 策略
 - **Google OAuth 登录**：AuthModal 新增"Google 登录"按钮（白底 + Google 彩色 logo），调用 `supabase.auth.signInWithOAuth`，回调到 /profile；需外部配置 Google Cloud Console OAuth 客户端 ID 和 Supabase Provider
 - **语音输入（Web Speech API）**：VoiceInput 组件封装浏览器原生中文语音识别，长按录音 + 实时文字气泡 + 红色脉冲动画；集成到评估 SceneAnimal step 2 和 step 3；不支持浏览器静默降级
+- **密码重置**：AuthModal 新增"忘记密码？"入口，`resetPasswordForEmail` 发送重置邮件；`/reset-password` 页面输入新密码，`updateUser` 完成重置；需 Supabase URL Configuration 添加 Redirect URL
 
 ## Bug 修复记录
 
@@ -203,7 +209,7 @@ Next.js 16 (App Router + Turbopack) + TypeScript + Tailwind CSS v4 + shadcn/ui v
 
 **🟢 低危：**
 - [ ] 邮箱验证（Supabase Dashboard 启用）
-- [ ] 密码重置流程（`resetPasswordForEmail` API + UI 入口）
+- [x] 密码重置流程（`resetPasswordForEmail` API + UI 入口）✅ 2026-06-15
 - [ ] localStorage 数据加密（可选，当前风险可接受）
 
 ---
