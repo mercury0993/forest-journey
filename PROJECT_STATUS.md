@@ -98,6 +98,7 @@
 
 - **默认模板冲突**：删除 `app/page.tsx`（create-next-app 默认模板），避免与 `app/(public)/page.tsx` 路由冲突
 - **React setState 错误**：`AssessmentFlow` 中 `restoreFromStorage()` 从渲染期间调用改为 `useEffect` 中调用
+- **雷达图标签裁切**：SVG viewBox 太小导致"角色"标签左半部分被裁切，扩展 viewBox 从 `0 0 280 280` 到 `-30 -10 340 320`
 
 ## MVP 核心决策
 
