@@ -68,3 +68,16 @@ model InviteCodeUser {
 
   @@map("invite_code_users")
 }
+
+model RoleModel {
+  id          String   @id @default(cuid())
+  name        String
+  empathy     Int
+  rule        Int
+  resilience  Int
+  role        Int
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("role_models")
+}
