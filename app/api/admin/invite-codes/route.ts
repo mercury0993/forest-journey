@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   if (id) {
-    const code = await getCodeById(id);
+    const code = await getCodeById(id, user.id);
     if (!code) return NextResponse.json({ error: "Not found" }, { status: 404 });
     if (searchParams.get("users") === "true") {
       const users = await getCodeUsers(id);
