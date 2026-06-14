@@ -15,12 +15,13 @@
 | Phase 17 | 语音输入 — Web Speech API 长按录音，中文识别 | ✅ |
 | Phase 18 | 密码重置 — 忘记密码 → 邮件 → 新密码 | ✅ |
 | Phase 19 | B 端管理后台 — 管理员认证 + 侧边栏布局框架（子系统 1/5） | ✅ |
+| Phase 20 | B 端测评码管理 — 生成/追踪/核销（子系统 2/5） | ✅ |
 
 ## 验证
 
-- **17/17** 测试通过 | **TypeScript** 0 错误
-- **6 页面**全部 200：`/` `/meditate` `/assessment` `/result` `/profile` `/reset-password`
-- **Dev server** 正常（Next.js 16 + Turbopack）
+- **17/17** 测试通过 | **TypeScript** 0 错误 | 构建成功
+- **页面路由**：`/` `/meditate` `/assessment` `/result` `/profile` `/reset-password` `/admin` `/admin/invite-codes`
+- **API 路由**：`/api/report` `/api/reports/sync` `/api/admin/invite-codes` `/api/auth/claim-code`
 
 ## 技术栈
 
@@ -40,7 +41,8 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 - [Supabase Auth 设计](docs/superpowers/specs/2026-06-03-supabase-auth-design.md) / [Auth 计划](docs/superpowers/plans/2026-06-03-supabase-auth.md)
 - [SVG 插画设计](docs/superpowers/specs/2026-06-13-animal-svg-illustrations-design.md) / [SVG 计划](docs/superpowers/plans/2026-06-13-animal-svg-illustrations.md)
 - [语音输入设计](docs/superpowers/specs/2026-06-14-voice-input-design.md) / [语音计划](docs/superpowers/plans/2026-06-14-voice-input.md)
-- [Google OAuth 指南](docs/superpowers/specs/2026-06-03-supabase-auth-design.md#oauth)
+- [Admin 布局设计](docs/superpowers/specs/2026-06-15-admin-auth-layout-design.md) / [Admin 计划](docs/superpowers/plans/2026-06-15-admin-auth-layout.md)
+- [测评码设计](docs/superpowers/specs/2026-06-15-invite-codes-design.md) / [测评码计划](docs/superpowers/plans/2026-06-15-invite-codes.md)
 
 ## 变更记录
 
@@ -53,7 +55,8 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 - Google OAuth：Supabase signInWithOAuth，一键跳转授权
 - 语音输入：长按录音 + 实时气泡 + 红色脉冲，不支持浏览器静默降级
 - 密码重置：忘记密码 → 发送邮件 → `/reset-password` 设置新密码
-- **B 端管理后台（子系统 1）**：`lib/admin.ts` isAdmin 工具（Supabase user_metadata）；`(admin)` 路由组布局（侧边栏 + 顶栏 + 权限守卫）；BottomNav 管理员入口；5 个子系统占位页
+- **B 端管理后台（子系统 1）**：`lib/admin.ts` isAdmin 工具（Supabase user_metadata）；`app/admin` 布局（侧边栏 + 顶栏 + 权限守卫）；BottomNav 管理员入口；5 个子系统占位页
+- **测评码管理（子系统 2）**：InviteCode 表（`FJ-` 前缀 8 位码）；管理员批量生成/列表/详情；用户注册选填邀请码自动核销
 
 ## Bug 修复
 
@@ -70,7 +73,7 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 
 | # | 项目 | 优先级 |
 |---|---|---|
-| 1 | **B 端子系统 2：测评码管理** | 🏢 进行中 |
-| 2 | B 端子系统 3-5：团队看板、岗位模型、报告导出 | 🏢 远期 |
+| 1 | **B 端子系统 3：团队看板** | 🏢 下一步 |
+| 2 | B 端子系统 4-5：岗位模型、报告导出 | 🏢 远期 |
 | 3 | 语音引导 TTS | 🎤 低 |
 | 4 | 分享裂变 | 🔗 低 |
