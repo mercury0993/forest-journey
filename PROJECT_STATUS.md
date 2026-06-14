@@ -14,6 +14,7 @@
 | Phase 16 | Google OAuth 登录 — AuthModal 一键 Google 登录 | ✅ |
 | Phase 17 | 语音输入 — Web Speech API 长按录音，中文识别 | ✅ |
 | Phase 18 | 密码重置 — 忘记密码 → 邮件 → 新密码 | ✅ |
+| Phase 19 | B 端管理后台 — 管理员认证 + 侧边栏布局框架（子系统 1/5） | ✅ |
 
 ## 验证
 
@@ -52,6 +53,7 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 - Google OAuth：Supabase signInWithOAuth，一键跳转授权
 - 语音输入：长按录音 + 实时气泡 + 红色脉冲，不支持浏览器静默降级
 - 密码重置：忘记密码 → 发送邮件 → `/reset-password` 设置新密码
+- **B 端管理后台（子系统 1）**：`lib/admin.ts` isAdmin 工具（Supabase user_metadata）；`(admin)` 路由组布局（侧边栏 + 顶栏 + 权限守卫）；BottomNav 管理员入口；5 个子系统占位页
 
 ## Bug 修复
 
@@ -68,6 +70,7 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 
 | # | 项目 | 优先级 |
 |---|---|---|
-| 1 | **B 端管理后台** — 管理员登录、测评码、团队看板、岗位模型、报告导出 | 🏢 远期 |
-| 2 | 语音引导 TTS | 🎤 低 |
-| 3 | 分享裂变 | 🔗 低 |
+| 1 | **B 端子系统 2：测评码管理** | 🏢 进行中 |
+| 2 | B 端子系统 3-5：团队看板、岗位模型、报告导出 | 🏢 远期 |
+| 3 | 语音引导 TTS | 🎤 低 |
+| 4 | 分享裂变 | 🔗 低 |
