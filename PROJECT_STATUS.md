@@ -1,12 +1,17 @@
 # Forest Journey — 项目状态
 
-> 最后更新：2026-06-13
+> 最后更新：2026-06-14
 
 ## 当前阶段
 
 **Phase 13: 安全加固 + 分享卡片 — 完成** ✅
 
 **Phase 14: 动物 SVG 插画库 — 完成** ✅
+
+**Phase 16: Google OAuth 登录 — 完成** ✅
+- [x] `components/auth/AuthModal.tsx` — Google 登录按钮 + OAuth 流程（Supabase）
+- [x] TypeScript 0 错误 + 17/17 测试通过
+- ⚠️ 需外部配置：Google Cloud Console OAuth 客户端 ID + Supabase Provider 启用
 
 - [x] 26 种扁平矢量动物 SVG 组件（6 个体型家族）
 - [x] AnimalIcon 统一渲染组件（模糊匹配 fallback）
@@ -59,6 +64,7 @@
 | Phase 13: 安全加固 + 分享卡片 | ✅ 完成 |
 | Phase 14: 动物 SVG 插画库 | ✅ 完成 (12/12) |
 | Phase 15: 森林白噪音 | ✅ 完成 |
+| Phase 16: Google OAuth 登录 | ✅ 完成 |
 | Supabase Auth 实现计划 | ✅ [plans/2026-06-03-supabase-auth.md](docs/superpowers/plans/2026-06-03-supabase-auth.md) |
 | SVG 插画设计文档 | ✅ [specs/2026-06-13-animal-svg-illustrations-design.md](docs/superpowers/specs/2026-06-13-animal-svg-illustrations-design.md) |
 | SVG 插画实现计划 | ✅ [plans/2026-06-13-animal-svg-illustrations.md](docs/superpowers/plans/2026-06-13-animal-svg-illustrations.md) |
@@ -86,6 +92,7 @@
 - **安全加固**：支付 mock → 限时免费、RLS 三表 + uuid、速率限制、输入校验、Prompt 注入防护
 - **动物 SVG 插画**：26 种扁平矢量动物 SVG，共享面部组件（EyesRound/EyesAlmond/NoseSmall/NoseSnout），AnimalIcon 统一渲染组件，替换 ServiceCard/ShareCardImage/HistoryList 的 emoji
 - **森林白噪音（Web Audio API）**：程序化合成棕噪声（风/树叶）、bandpass 溪流（LFO 调制）、随机鸟鸣（双振荡器和声），零外部文件依赖；自动处理浏览器 autoplay 策略
+- **Google OAuth 登录**：AuthModal 新增"Google 登录"按钮（白底 + Google 彩色 logo），调用 `supabase.auth.signInWithOAuth`，回调到 /profile；需外部配置 Google Cloud Console OAuth 客户端 ID 和 Supabase Provider
 
 ## Bug 修复记录
 
@@ -114,11 +121,10 @@ Next.js 16 (App Router + Turbopack) + TypeScript + Tailwind CSS v4 + shadcn/ui v
 
 | # | 项目 | 说明 | 优先级 |
 |---|---|---|---|
-| 1 | Google OAuth 登录 | 降低注册门槛，详见下方实施指南 | 🔐 中 |
-| 2 | 语音输入 | Web Speech API 浏览器原生，手机上体验好 | 🎤 中 |
-| 5 | 语音引导 TTS | 冥想和场景引导语音，比纯文字更有沉浸感 | 🎤 低 |
-| 6 | 分享裂变 | 邀请好友注册免费解锁 | 🔗 低 |
-| 7 | B 端管理后台 | 测评码管理、团队看板、岗位模型、报告导出 | 🏢 远期 |
+| 1 | 语音输入 | Web Speech API 浏览器原生，手机上体验好 | 🎤 中 |
+| 2 | 语音引导 TTS | 冥想和场景引导语音，比纯文字更有沉浸感 | 🎤 低 |
+| 3 | 分享裂变 | 邀请好友注册免费解锁 | 🔗 低 |
+| 4 | B 端管理后台 | 测评码管理、团队看板、岗位模型、报告导出 | 🏢 远期 |
 
 ### 🔐 Google OAuth 登录实施指南
 
