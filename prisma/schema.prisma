@@ -46,3 +46,16 @@ model Report {
 
   @@map("reports")
 }
+
+model InviteCode {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  label     String?
+  maxUses   Int      @default(1)
+  usedCount Int      @default(0)  @map("used_count")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdBy String   @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("invite_codes")
+}
