@@ -9,6 +9,7 @@ interface TeamReport {
   createdAt: string;
   inviteCode: string | null;
   batchLabel: string | null;
+  email: string | null;
 }
 
 interface ByCode {
@@ -248,6 +249,7 @@ export default function TeamDashboardPage() {
               <thead>
                 <tr className="border-b border-white/[0.06] text-white/40 text-xs">
                   {[
+                    { key: "email", label: "邮箱" },
                     { key: "roleTitle", label: "原型" },
                     { key: "empathy", label: "共情" },
                     { key: "rule", label: "规则" },
@@ -271,10 +273,11 @@ export default function TeamDashboardPage() {
               </thead>
               <tbody>
                 {filteredReports.length === 0 && (
-                  <tr><td colSpan={7} className="text-center py-8 text-white/20">暂无数据</td></tr>
+                  <tr><td colSpan={8} className="text-center py-8 text-white/20">暂无数据</td></tr>
                 )}
                 {filteredReports.map((r) => (
                   <tr key={r.id} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
+                    <td className="px-4 py-3 text-white/40 text-xs">{r.email || "-"}</td>
                     <td className="px-4 py-3 text-white/70">{r.roleTitle}</td>
                     <td className="px-4 py-3 text-white/50">{r.dimensions.empathy}</td>
                     <td className="px-4 py-3 text-white/50">{r.dimensions.rule}</td>

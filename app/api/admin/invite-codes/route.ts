@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { createInviteCodes, getAdminCodes, getCodeById } from "@/lib/invite-code";
+import { createInviteCodes, getAdminCodes, getCodeById, getCodeUsers } from "@/lib/invite-code";
 import { isAdmin } from "@/lib/admin";
 
 export async function GET(request: NextRequest) {
@@ -15,6 +15,10 @@ export async function GET(request: NextRequest) {
   if (id) {
     const code = await getCodeById(id);
     if (!code) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (searchParams.get("users") === "true") {
+      const users = await getCodeUsers(id);
+      return NextResponse.json({ code, users });
+    }
     return NextResponse.json({ code });
   }
 

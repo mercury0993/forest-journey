@@ -54,7 +54,31 @@ export async function getCodeById(id: string) {
   return prisma.inviteCode.findUnique({ where: { id } });
 }
 
-export async function createInviteCodeUser(code: string, userId: string): Promise<boolean> {
+export async function getCodeUsers(inviteCodeId: string) {
+  const mappings = await prisma.inviteCodeUser.findMany({
+    where: { inviteCodeId },
+  });
+  const userIds = mappings.map((m) => m.userId);
+  const reports = await prisma.report.findMany({
+    where: { userId: { in: userIds } },
+    orderBy: { createdAt: "desc" },
+  });
+  return mappings.map((m) => {
+    const report = reports.find((r) => r.userId === m.userId);
+    return {
+      email: m.email,
+      userId: m.userId,
+      createdAt: m.createdAt,
+      report: report ? {
+        roleTitle: report.roleTitle,
+        dimensions: report.dimensions,
+        reportCreatedAt: report.createdAt,
+      } : null,
+    };
+  });
+}
+
+export async function createInviteCodeUser(code: string, userId: string, email?: string): Promise<boolean> {
   const record = await prisma.inviteCode.findUnique({ where: { code } });
   if (!record || !record.isActive) return false;
 
@@ -62,6 +86,7 @@ export async function createInviteCodeUser(code: string, userId: string): Promis
     data: {
       inviteCodeId: record.id,
       userId,
+      email: email || null,
     },
   });
   return true;
@@ -86,10 +111,10 @@ export async function getTeamMembers(adminUserId: string) {
     orderBy: { createdAt: "desc" },
   });
 
-  const userCodeMap = new Map<string, { code: string; label: string | null }>();
+  const userCodeMap = new Map<string, { code: string; label: string | null; email: string | null }>();
   for (const m of mappings) {
     const c = codes.find((c) => c.id === m.inviteCodeId);
-    if (c) userCodeMap.set(m.userId, { code: c.code, label: c.label });
+    if (c) userCodeMap.set(m.userId, { code: c.code, label: c.label, email: m.email });
   }
 
   const byCode = new Map<string, { code: string; label: string | null; reports: typeof reports }>();
@@ -112,6 +137,7 @@ export async function getTeamMembers(adminUserId: string) {
       ...r,
       inviteCode: userCodeMap.get(r.userId!)?.code || null,
       batchLabel: userCodeMap.get(r.userId!)?.label || null,
+      email: userCodeMap.get(r.userId!)?.email || null,
     })),
     byCode: Array.from(byCode.values()),
   };

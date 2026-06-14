@@ -78,7 +78,7 @@ export default function AuthModal() {
         fetch("/api/auth/claim-code", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: inviteCode.trim() }),
+          body: JSON.stringify({ code: inviteCode.trim(), email: email }),
         }).catch(() => {});
       }
     } else {

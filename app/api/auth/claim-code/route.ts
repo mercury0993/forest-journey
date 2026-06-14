@@ -3,7 +3,7 @@ import { claimInviteCode, createInviteCodeUser } from "@/lib/invite-code";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { code, userId } = body;
+  const { code, userId, email } = body;
 
   if (!code) {
     return NextResponse.json({ error: "Missing code" }, { status: 400 });
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (userId) {
-    await createInviteCodeUser(code, userId);
+    await createInviteCodeUser(code, userId, email);
   }
 
   return NextResponse.json({ ok: true });

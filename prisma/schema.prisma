@@ -64,6 +64,7 @@ model InviteCodeUser {
   id           String   @id @default(cuid())
   inviteCodeId String   @map("invite_code_id")
   userId       String   @map("user_id") @db.Uuid
+  email        String?
   createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("invite_code_users")
