@@ -50,7 +50,7 @@ function RadarChart({ scores }: { scores: DimensionScores }) {
   const pathData = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ") + " Z";
 
   return (
-    <svg viewBox="0 0 280 280" className="w-full max-w-[280px] mx-auto">
+    <svg viewBox="-30 -10 340 320" className="w-full max-w-[300px] mx-auto">
       {gridLevels.map((level) => {
         const gridPoints = dimensions.map((_, i) => {
           const angle = centerAngle + i * angleStep;
