@@ -1,0 +1,126 @@
+<h2>当前状态：Emoji 动物渲染</h2>
+<p class="subtitle">结果页和分享卡片目前用大字 emoji 展示动物，精致度不够</p>
+
+<div class="section">
+  <h3>当前效果（分享卡片）</h3>
+  <div class="mockup">
+    <div class="mockup-header">Share Card — 当前 emoji 渲染</div>
+    <div class="mockup-body" style="text-align:center;padding:40px 20px;background:linear-gradient(135deg,#1a3a2a,#0d1f17);border-radius:12px;color:#e0e0e0">
+      <div style="font-size:80px;margin-bottom:16px;filter:drop-shadow(0 0 12px rgba(74,222,128,0.5))">🦊</div>
+      <div style="font-size:18px;font-weight:600;color:#4ade80;margin-bottom:4px">灵性探索者</div>
+      <div style="font-size:13px;color:#9ca3af">你是森林里的狐狸</div>
+      <div style="margin-top:12px;display:flex;justify-content:center;gap:24px;font-size:12px;color:#6b7280">
+        <span>共情 78</span><span>规则 32</span><span>韧性 65</span><span>角色 81</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>3 种 SVG 插画风格方向</h3>
+  <p class="subtitle">点击选择你倾向的风格（可多选）</p>
+</div>
+
+<div class="cards" data-multiselect>
+  <div class="card" data-choice="flat-vector" onclick="toggleSelect(this)" style="border:2px solid transparent">
+    <div class="card-image" style="background:#f5f0e8;display:flex;align-items:center;justify-content:center;padding:24px;min-height:160px">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <!-- Flat vector fox -->
+        <ellipse cx="60" cy="55" rx="30" ry="26" fill="#e8783a"/>
+        <polygon points="60,29 75,10 68,38" fill="#e8783a"/>
+        <polygon points="60,29 45,10 52,38" fill="#e8783a"/>
+        <ellipse cx="48" cy="50" rx="7" ry="8" fill="#fff5e6"/>
+        <ellipse cx="72" cy="50" rx="7" ry="8" fill="#fff5e6"/>
+        <circle cx="48" cy="50" r="3" fill="#2d1b0e"/>
+        <circle cx="72" cy="50" r="3" fill="#2d1b0e"/>
+        <ellipse cx="60" cy="60" rx="4" ry="3" fill="#2d1b0e"/>
+        <path d="M35,70 Q60,85 85,70" fill="none" stroke="#2d1b0e" stroke-width="2"/>
+        <ellipse cx="60" cy="76" rx="16" ry="10" fill="#fff5e6"/>
+        <path d="M60,35 L60,66" fill="none" stroke="#f0c078" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>A. 扁平矢量</h3>
+      <p>干净几何形状 + 暖色调配色，像儿童绘本插画。亲和力强，治愈感明显。类似 Notion/Linear 的插画风格。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="line-art" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f5f0e8;display:flex;align-items:center;justify-content:center;padding:24px;min-height:160px">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <!-- Line art fox — elegant hand-drawn feel -->
+        <defs>
+          <linearGradient id="foxGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#d4a574"/>
+            <stop offset="100%" stop-color="#8b5e3c"/>
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="url(#foxGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M45,35 Q50,18 60,8 Q70,18 75,35"/>
+          <path d="M48,42 Q50,36 60,28 Q70,36 72,42"/>
+          <path d="M55,38 Q53,28 38,20"/>
+          <path d="M65,38 Q67,28 82,20"/>
+          <ellipse cx="48" cy="52" rx="6" ry="6.5"/>
+          <ellipse cx="72" cy="52" rx="6" ry="6.5"/>
+          <circle cx="49" cy="52" r="2.5" fill="#8b5e3c"/>
+          <circle cx="73" cy="52" r="2.5" fill="#8b5e3c"/>
+          <path d="M54,62 Q60,66 66,62"/>
+          <path d="M42,68 Q60,82 78,68"/>
+          <path d="M50,75 Q60,65 70,75"/>
+          <ellipse cx="60" cy="80" rx="18" ry="12"/>
+        </g>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>B. 线稿手绘风</h3>
+      <p>细线条 + 留白为主，有禅意和手工感。与"森林之旅"的宁静调性高度契合。类似日式水墨小品的现代演绎。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="textured" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f5f0e8;display:flex;align-items:center;justify-content:center;padding:24px;min-height:160px">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <!-- Textured/grainy fox — richer, more organic -->
+        <defs>
+          <radialGradient id="bodyGrad" cx="50%" cy="40%">
+            <stop offset="0%" stop-color="#f0a060"/>
+            <stop offset="100%" stop-color="#c06020"/>
+          </radialGradient>
+          <filter id="grain">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+            <feBlend in="SourceGraphic" mode="multiply" result="blend"/>
+            <feComponentTransfer><feFuncA type="linear" slope="1"/></feComponentTransfer>
+          </filter>
+        </defs>
+        <g filter="url(#grain)">
+          <ellipse cx="60" cy="58" rx="32" ry="28" fill="url(#bodyGrad)"/>
+          <polygon points="60,30 78,8 70,41" fill="#e8783a"/>
+          <polygon points="60,30 42,8 50,41" fill="#e8783a"/>
+          <ellipse cx="50" cy="54" rx="8" ry="9" fill="#fff8f0"/>
+          <ellipse cx="70" cy="54" rx="8" ry="9" fill="#fff8f0"/>
+          <circle cx="50" cy="54" r="3.5" fill="#3a1a00"/>
+          <circle cx="70" cy="54" r="3.5" fill="#3a1a00"/>
+          <ellipse cx="60" cy="63" rx="5" ry="4" fill="#3a1a00"/>
+          <path d="M36,73 Q60,90 84,73" fill="none" stroke="#3a1a00" stroke-width="2.2"/>
+          <path d="M60,34 L60,68" fill="none" stroke="#ffc080" stroke-width="2" opacity="0.6"/>
+          <ellipse cx="60" cy="82" rx="20" ry="14" fill="#fff8f0" opacity="0.9"/>
+        </g>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>C. 质感颗粒风</h3>
+      <p>渐变 + 颗粒纹理，有层次感和温度。介于扁平与写实之间，视觉更丰富。类似 Notion 早期插画或 Mailchimp 的风格。</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>需要考虑的问题</h3>
+  <ul>
+    <li>这套插画要覆盖 <strong>26 种动物</strong>（从狐狸到海豚到蝴蝶），需要风格统一</li>
+    <li>分享卡片是深绿色背景，插画需要在深色上好看</li>
+    <li>PNG 下载尺寸约 600×400，插画约占 120×120 区域</li>
+    <li>需要同时支持大尺寸（卡片 7xl~8xl ≈ 80-96px）和小尺寸（列表缩略图 ≈ 24px）</li>
+  </ul>
+</div>
