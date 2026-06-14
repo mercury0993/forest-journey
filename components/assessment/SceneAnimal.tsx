@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ANIMAL_TAGS } from "@/lib/animals";
+import VoiceInput from "@/components/shared/VoiceInput";
 
 interface Props {
   sceneNumber: 1 | 4;
@@ -99,31 +100,39 @@ export default function SceneAnimal({ sceneNumber, isScene4, onComplete }: Props
       {step === "followUp1" && (
         <div className="space-y-4">
           <label className="block text-green-100 font-medium text-lg">它正在做什么？眼神是怎样的？</label>
-          <textarea
-            value={followUp1}
-            onChange={(e) => setFollowUp1(e.target.value)}
-            placeholder="描述一下它的状态……"
-            rows={3}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-green-500/50 transition-colors resize-none"
-            autoFocus
-          />
+          <div className="flex gap-2">
+            <textarea
+              value={followUp1}
+              onChange={(e) => setFollowUp1(e.target.value)}
+              placeholder="描述一下它的状态……"
+              rows={3}
+              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-green-500/50 transition-colors resize-none"
+              autoFocus
+            />
+            <div className="flex items-end pb-3">
+              <VoiceInput onTranscript={(t) => setFollowUp1((prev) => (prev ? prev + t : t))} />
+            </div>
+          </div>
         </div>
       )}
 
       {step === "followUp2" && (
         <div className="space-y-4">
           <label className="block text-green-100 font-medium text-lg">它看到你了吗？你们有交流吗？</label>
-          <input
-            type="text"
-            value={followUp2}
-            onChange={(e) => setFollowUp2(e.target.value)}
-            placeholder="（选填，按 Enter 跳过）"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-green-500/50 transition-colors"
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleNext();
-            }}
-          />
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              value={followUp2}
+              onChange={(e) => setFollowUp2(e.target.value)}
+              placeholder="（选填，按 Enter 跳过）"
+              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-green-500/50 transition-colors"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleNext();
+              }}
+            />
+            <VoiceInput onTranscript={(t) => setFollowUp2((prev) => (prev ? prev + "，" + t : t))} />
+          </div>
         </div>
       )}
 
