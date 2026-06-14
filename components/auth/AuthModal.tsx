@@ -12,6 +12,7 @@ export default function AuthModal() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
+  const [inviteCode, setInviteCode] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
 
   if (!authModalOpen) return null;
@@ -72,6 +73,14 @@ export default function AuthModal() {
       closeAuthModal();
       setEmail("");
       setPassword("");
+      setInviteCode("");
+      if (inviteCode.trim()) {
+        fetch("/api/auth/claim-code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: inviteCode.trim() }),
+        }).catch(() => {});
+      }
     } else {
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
@@ -171,6 +180,15 @@ export default function AuthModal() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-lg bg-white/[0.06] border border-white/[0.1] text-white placeholder-white/30 focus:outline-none focus:border-green-500/50 transition-colors"
                 />
+                {authModalMode === "signup" && (
+                  <input
+                    type="text"
+                    placeholder="邀请码（选填）"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-lg bg-white/[0.06] border border-white/[0.1] text-white placeholder-white/30 focus:outline-none focus:border-amber-500/50 transition-colors"
+                  />
+                )}
 
                 {error && (
                   <p className="text-red-400 text-sm text-center">{error}</p>
