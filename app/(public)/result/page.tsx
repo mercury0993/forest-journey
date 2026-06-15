@@ -63,29 +63,45 @@ export default function ResultPage() {
     try {
       const answers = raw as unknown as AssessmentAnswers;
 
+      // 前置校验：必填字段不完整则跳过 API 请求，直接降级
+      const hasRequiredFields =
+        typeof answers?.scene1?.animalName === "string" &&
+        answers.scene1.animalName.trim().length > 0 &&
+        typeof answers?.scene4?.animalName === "string" &&
+        answers.scene4.animalName.trim().length > 0 &&
+        answers?.scene2 &&
+        answers?.scene3;
+
       const runNLP = async () => {
-        let apiData;
-        try {
-          const res = await fetch("/api/report", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(answers),
-          });
-          if (res.ok) {
-            apiData = (await res.json()).data;
-          } else {
-            throw new Error("API failed");
+        let apiData: Record<string, unknown> | null = null;
+
+        // 仅当必填字段完整时才发起 API 请求
+        if (hasRequiredFields) {
+          try {
+            const res = await fetch("/api/report", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(answers),
+            });
+            if (res.ok) {
+              apiData = (await res.json()).data;
+            }
+            // API 返回非 200 也走降级，不抛异常
+          } catch {
+            // 网络错误或超时 → 静默降级
           }
-        } catch {
-          // API 完全失败 → 使用本地降级
-          const animal1Text = `${answers.scene1.animalName} ${answers.scene1.description} ${answers.scene1.followUp1}`;
-          const animal2Text = `${answers.scene4.animalName} ${answers.scene4.description}`;
+        }
+
+        // API 未返回数据 → 使用本地降级
+        if (!apiData) {
+          const animal1Text = `${answers.scene1?.animalName || ""} ${answers.scene1?.description || ""} ${answers.scene1?.followUp1 || ""}`;
+          const animal2Text = `${answers.scene4?.animalName || ""} ${answers.scene4?.description || ""}`;
 
           const { nlpFallback } = await import("@/lib/nlp-fallback");
           const { calculateScores, applyAICalibration } = await import("@/lib/mapping-engine");
           const { findArchetype } = await import("@/lib/templates");
 
-          const fallbackNLP = nlpFallback(animal1Text, animal2Text, answers.scene4.firstFeeling);
+          const fallbackNLP = nlpFallback(animal1Text, animal2Text, answers.scene4?.firstFeeling || "");
           const ruleScores = calculateScores(answers, {
             animal1Name: fallbackNLP.animal1Name,
             animal1Category: fallbackNLP.animal1Category,
@@ -113,13 +129,13 @@ export default function ResultPage() {
           id: Date.now().toString(36),
           createdAt: new Date().toISOString(),
           answers,
-          scores: apiData.scores,
-          nlp: apiData.nlp,
-          templateIndex: apiData.archetypeIndex,
-          roleTitle: apiData.roleTitle,
-          cardTitle: apiData.cardTitle,
-          cardInterpretation: apiData.cardInterpretation,
-          fullReport: apiData.fullReport,
+          scores: apiData.scores as ReportData["scores"],
+          nlp: apiData.nlp as ReportData["nlp"],
+          templateIndex: apiData.archetypeIndex as number,
+          roleTitle: apiData.roleTitle as string,
+          cardTitle: apiData.cardTitle as string,
+          cardInterpretation: apiData.cardInterpretation as string,
+          fullReport: apiData.fullReport as ReportData["fullReport"],
           isPaid: true,
         };
 

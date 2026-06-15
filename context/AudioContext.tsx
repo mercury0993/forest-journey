@@ -24,15 +24,15 @@ const AudioContext = createContext<AudioContextType>({
 export function AudioProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const engineRef = useRef<ForestAudioEngine | null>(null);
-  const initRef = useRef(false);
+  // 用户是否已主动交互过（解决 AudioContext 自动播放策略警告）
+  const userInteractedRef = useRef(false);
 
-  // Restore saved preference on mount
+  // 仅恢复偏好，不自动创建 AudioContext（避免浏览器警告）
   useEffect(() => {
     const stored = localStorage.getItem("fj_audio_on");
     if (stored === "true") {
       setIsPlaying(true);
     }
-    initRef.current = true;
   }, []);
 
   const startEngine = useCallback(async () => {
@@ -42,7 +42,6 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     try {
       await engineRef.current.start();
     } catch {
-      // Autoplay blocked or not supported — revert state
       setIsPlaying(false);
       localStorage.setItem("fj_audio_on", "false");
     }
@@ -52,8 +51,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     engineRef.current?.stop();
   }, []);
 
+  // 仅在用户交互后才启动音频引擎
   useEffect(() => {
-    if (!initRef.current) return;
+    if (!userInteractedRef.current) return;
     if (isPlaying) {
       startEngine();
     } else {
@@ -62,6 +62,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   }, [isPlaying, startEngine, stopEngine]);
 
   const toggle = useCallback(() => {
+    userInteractedRef.current = true;
     setIsPlaying((prev) => {
       const next = !prev;
       localStorage.setItem("fj_audio_on", String(next));

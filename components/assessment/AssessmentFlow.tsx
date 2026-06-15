@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import SceneAnimal from "./SceneAnimal";
@@ -8,6 +8,7 @@ import SceneTable from "./SceneTable";
 import SceneWall from "./SceneWall";
 import { useAssessment } from "@/context/AssessmentContext";
 import { clearCurrentAssessment, saveLatestAnswers } from "@/lib/storage";
+import { AssessmentAnswers } from "@/lib/types";
 
 type SceneId = 1 | 2 | 3 | 4;
 
@@ -18,6 +19,10 @@ export default function AssessmentFlow() {
   const router = useRouter();
   const { answers, setScene1, setScene2, setScene3, setScene4, restoreFromStorage } = useAssessment();
   const [scene, setScene] = useState<SceneId>(1);
+
+  // 用 ref 累积完整答案，避免 useCallback 闭包捕获到旧的 context answers
+  const answersRef = useRef<AssessmentAnswers>(answers);
+  answersRef.current = answers;
 
   useEffect(() => {
     restoreFromStorage();
@@ -42,9 +47,11 @@ export default function AssessmentFlow() {
     const scene4Data = { ...data, firstFeeling: (data.firstFeeling || "curious") as "warm_joy" | "care" | "equal_respect" | "nervous" | "curious" };
     setScene4(scene4Data);
     clearCurrentAssessment();
-    saveLatestAnswers({ ...answers, scene4: scene4Data });
+    // 从 ref 取最新值，保证场景1-3的数据不会因闭包陈旧而丢失
+    const latest = answersRef.current;
+    saveLatestAnswers({ ...latest, scene4: scene4Data } as AssessmentAnswers & { scene4: Record<string, unknown> });
     router.push("/result");
-  }, [setScene4, answers, router]);
+  }, [setScene4, router]);
 
   return (
     <div className="min-h-screen flex flex-col pb-20">
