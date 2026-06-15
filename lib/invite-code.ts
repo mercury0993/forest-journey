@@ -50,8 +50,8 @@ export async function getAdminCodes(createdBy: string) {
   });
 }
 
-export async function getCodeById(id: string, createdBy?: string) {
-  return prisma.inviteCode.findUnique({ where: createdBy ? { id, createdBy } : { id } });
+export async function getCodeById(id: string, createdBy: string) {
+  return prisma.inviteCode.findUnique({ where: { id, createdBy } });
 }
 
 export async function getCodeUsers(inviteCodeId: string) {

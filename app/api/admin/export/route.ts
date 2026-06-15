@@ -24,7 +24,12 @@ export async function GET(request: NextRequest) {
   ]);
 
   const csv = [header, ...rows]
-    .map((row) => row.map((cell) => `"${cell}"`).join(","))
+    .map((row) => row.map((cell) => {
+      const str = String(cell);
+      // 防 CSV 公式注入：以 = + - @ 开头的值加单引号前缀
+      const safe = /^[=+\-@]/.test(str) ? "'" + str : str;
+      return `"${safe}"`;
+    }).join(","))
     .join("\n");
 
   return new NextResponse(csv, {
