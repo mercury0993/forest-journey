@@ -7,8 +7,6 @@ import WaitingAnimation from "@/components/result/WaitingAnimation";
 import ServiceCard from "@/components/result/ServiceCard";
 import FullReport from "@/components/result/FullReport";
 import ShareCardImage from "@/components/result/ShareCardImage";
-import { calculateScores, matchTemplate } from "@/lib/mapping-engine";
-import { nlpFallback } from "@/lib/nlp-fallback";
 import { saveReport, loadLatestAnswers, clearLatestAnswers } from "@/lib/storage";
 import { useUser } from "@/context/UserContext";
 import { AssessmentAnswers, ReportData } from "@/lib/types";
@@ -66,44 +64,62 @@ export default function ResultPage() {
       const answers = raw as unknown as AssessmentAnswers;
 
       const runNLP = async () => {
-        let nlpResult;
+        let apiData;
         try {
           const res = await fetch("/api/report", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              animal1Text: `${answers.scene1.animalName} ${answers.scene1.description} ${answers.scene1.followUp1}`,
-              animal2Text: `${answers.scene4.animalName} ${answers.scene4.description}`,
-              animal2Feeling: answers.scene4.firstFeeling,
-            }),
+            body: JSON.stringify(answers),
           });
           if (res.ok) {
-            nlpResult = (await res.json()).data;
+            apiData = (await res.json()).data;
           } else {
             throw new Error("API failed");
           }
         } catch {
-          nlpResult = nlpFallback(
-            `${answers.scene1.animalName} ${answers.scene1.description} ${answers.scene1.followUp1}`,
-            `${answers.scene4.animalName} ${answers.scene4.description}`,
-            answers.scene4.firstFeeling
-          );
-        }
+          // API 完全失败 → 使用本地降级
+          const animal1Text = `${answers.scene1.animalName} ${answers.scene1.description} ${answers.scene1.followUp1}`;
+          const animal2Text = `${answers.scene4.animalName} ${answers.scene4.description}`;
 
-        const scores = calculateScores(answers, nlpResult);
-        const match = matchTemplate(scores);
+          const { nlpFallback } = await import("@/lib/nlp-fallback");
+          const { calculateScores, applyAICalibration } = await import("@/lib/mapping-engine");
+          const { findArchetype } = await import("@/lib/templates");
+
+          const fallbackNLP = nlpFallback(animal1Text, animal2Text, answers.scene4.firstFeeling);
+          const ruleScores = calculateScores(answers, {
+            animal1Name: fallbackNLP.animal1Name,
+            animal1Category: fallbackNLP.animal1Category,
+            animal2Name: fallbackNLP.animal2Name,
+            animal2Category: fallbackNLP.animal2Category,
+            animal1Sentiment: fallbackNLP.animal1Sentiment,
+            animal2Sentiment: fallbackNLP.animal2Sentiment,
+          });
+          const calibration = applyAICalibration(ruleScores, null);
+          const archetype = findArchetype(calibration.finalScores);
+
+          apiData = {
+            nlp: fallbackNLP,
+            scores: calibration.finalScores,
+            calibrationTrusted: false,
+            archetypeIndex: calibration.archetypeIndex,
+            roleTitle: archetype.roleTitle,
+            cardTitle: archetype.cardTitle,
+            cardInterpretation: archetype.cardInterpretation,
+            fullReport: archetype.defaultReport,
+          };
+        }
 
         const report: ReportData = {
           id: Date.now().toString(36),
           createdAt: new Date().toISOString(),
           answers,
-          scores,
-          nlp: nlpResult,
-          templateIndex: match.templateIndex,
-          roleTitle: match.roleTitle,
-          cardTitle: match.cardTitle,
-          cardInterpretation: match.cardInterpretation,
-          fullReport: match.fullReport,
+          scores: apiData.scores,
+          nlp: apiData.nlp,
+          templateIndex: apiData.archetypeIndex,
+          roleTitle: apiData.roleTitle,
+          cardTitle: apiData.cardTitle,
+          cardInterpretation: apiData.cardInterpretation,
+          fullReport: apiData.fullReport,
           isPaid: true,
         };
 
