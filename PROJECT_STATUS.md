@@ -84,6 +84,7 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 
 **未完成（低优先级）：** 邮箱验证（刻意关闭，怕自锁）、localStorage 加密（风险可接受）
 **已修复（2026-06-15）：** 跨管理员码查看 + claim-code 频率限制（安全审查中危项）
+**已修复（2026-06-16）：** CSV 导出公式注入防护 + getCodeById 跨管理员查询加固（安全审查中危项）
 
 ## 下一步
 
