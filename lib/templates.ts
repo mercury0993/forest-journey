@@ -1,157 +1,287 @@
-import { DimensionScores } from "./types";
+import { ArchetypeDefinition, DimensionScores, DimensionTiers, Tier } from "./types";
 
-export interface ReportTemplate {
-  center: DimensionScores;
-  roleTitle: string;
-  cardTitle: string;
-  cardInterpretation: string;
-  fullReport: {
-    archetype: string;
-    rules: string;
-    encounter: string;
-    prescription: string;
+// ============================================================
+// 动物映射：role × resilience × empathy → 动物
+// role: 0=专家顾问, 1=协作平衡, 2=服务者
+// resilience: 0=低, 1=中, 2=高
+// empathy: 0=低, 1=中, 2=高
+// ============================================================
+
+const ANIMALS: Record<string, string> = {
+  // role=2 (服务者型)
+  "2,2,2": "白鹿",   "2,2,1": "牧羊犬", "2,2,0": "守山犬",
+  "2,1,2": "灵狐",   "2,1,1": "信鸽",   "2,1,0": "耕牛",
+  "2,0,2": "幼鹿",   "2,0,1": "绵羊",   "2,0,0": "蜜蜂",
+  // role=1 (协作平衡型)
+  "1,2,2": "驯鹿",   "1,2,1": "苍鹰",   "1,2,0": "雪豹",
+  "1,1,2": "海豚",   "1,1,1": "马",     "1,1,0": "猫头鹰",
+  "1,0,2": "兔子",   "1,0,1": "松鼠",   "1,0,0": "刺猬",
+  // role=0 (专家顾问型)
+  "0,2,2": "大象",   "0,2,1": "狼",     "0,2,0": "虎",
+  "0,1,2": "熊猫",   "0,1,1": "豹",     "0,1,0": "蛇",
+  "0,0,2": "考拉",   "0,0,1": "乌龟",   "0,0,0": "变色龙",
+};
+
+// ============================================================
+// 角色形容词前缀：rule 档位决定基调
+// ============================================================
+
+const RULE_PREFIXES: Record<number, string[]> = {
+  0: ["洒脱", "自由", "随性", "不拘", "自然", "写意", "灵动", "从容", "通透"],
+  1: ["温和", "稳健", "圆融", "周到", "持重", "沉着", "务实", "平衡", "融通"],
+  2: ["严谨", "笃定", "精准", "方正", "坚定", "周密", "规矩", "缜密", "端方"],
+};
+
+// ============================================================
+// 维度标签
+// ============================================================
+
+const EMPATHY_LABEL  = ["理性独立", "收放自如", "深度共情"];
+const RULE_LABEL     = ["灵活变通", "弹性务实", "秩序井然"];
+const RESIL_LABEL    = ["柔韧生长", "稳中求进", "坚如磐石"];
+const ROLE_LABEL     = ["专家顾问", "协作平衡", "服务者"];
+
+function tierLabel(dim: string, t: Tier): string {
+  const map: Record<string, string[]> = {
+    empathy: EMPATHY_LABEL, rule: RULE_LABEL, resilience: RESIL_LABEL, role: ROLE_LABEL,
+  };
+  return map[dim]?.[t] ?? "均衡";
+}
+
+function gridPosition(tiers: DimensionTiers): string {
+  return `${tierLevel(tiers.empathy)}共情·${tierLevel(tiers.rule)}秩序·${tierLevel(tiers.resilience)}应变·${tierLevel(tiers.role)}角色`;
+}
+
+function tierLevel(t: Tier): string {
+  return ["低", "中", "高"][t];
+}
+
+function centerScore(t: Tier): number {
+  return [17, 50, 83][t];
+}
+
+// ============================================================
+// 索引：按 empathy/rule/resilience/role 的 tier 值定位
+// 每维 0/1/2，所以 index = e*27 + r*9 + s*3 + o
+// ============================================================
+
+function archetypeIndex(tiers: DimensionTiers): number {
+  return tiers.empathy * 27 + tiers.rule * 9 + tiers.resilience * 3 + tiers.role;
+}
+
+function tiersFromIndex(idx: number): DimensionTiers {
+  const empathy  = Math.floor(idx / 27) as Tier;
+  const rule     = Math.floor((idx % 27) / 9) as Tier;
+  const resilience = Math.floor((idx % 9) / 3) as Tier;
+  const role     = (idx % 3) as Tier;
+  return { empathy, rule, resilience, role };
+}
+
+// ============================================================
+// 一句话解读生成
+// ============================================================
+
+function buildCardInterpretation(tiers: DimensionTiers, animal: string): string {
+  const eLabel = EMPATHY_LABEL[tiers.empathy];
+  const rLabel = RULE_LABEL[tiers.rule];
+  const sLabel = RESIL_LABEL[tiers.resilience];
+  const oLabel = ROLE_LABEL[tiers.role];
+  return `你以${eLabel}的内心感知世界，在${rLabel}的秩序中前行，以${sLabel}的姿态面对挑战，天然倾向于${oLabel}的角色。像森林中的${animal}，你有自己独特的存在方式。`;
+}
+
+// ============================================================
+// AI Prompt 方向指引生成
+// ============================================================
+
+function buildAiPromptGuide(tiers: DimensionTiers, animal: string): string {
+  const e = EMPATHY_LABEL[tiers.empathy];
+  const r = RULE_LABEL[tiers.rule];
+  const s = RESIL_LABEL[tiers.resilience];
+  const o = ROLE_LABEL[tiers.role];
+
+  const empathyTips: Record<number, string> = {
+    0: "共情力偏低，倾向于理性分析而非情感共鸣。解读时强调逻辑和效率在服务中的价值，同时温和建议情感觉察的练习。",
+    1: "共情力适中，有选择地共情。解读时肯定其'能收能放'的平衡能力，同时探讨哪些场景适合打开共情开关。",
+    2: "高共情力是ta的核心天赋。解读时赞美这份天赋，但务必在处方中提醒情绪边界和自我保护。",
+  };
+  const ruleTips: Record<number, string> = {
+    0: "低秩序感，灵活变通。解读时强调创造力和应变能力的价值，但处方中需建议建立个人的'最小规则框架'。",
+    1: "中等秩序感，弹性务实。解读时肯定其在规则与灵活之间的平衡智慧。",
+    2: "高秩序感，重视流程。解读时强调标准化服务的力量，但处方中需提醒'规则之外的温暖'。",
+  };
+
+  return `该用户属于${e}+${r}+${s}+${o}的${animal}原型。
+    ${empathyTips[tiers.empathy]}
+    ${ruleTips[tiers.rule]}
+    应变力${s}，角色定位${o}。
+    报告应引用用户关于动物和墙的具体描述，让解读有据可依。`;
+}
+
+// ============================================================
+// 默认报告生成（降级用）
+// ============================================================
+
+function buildDefaultArchetype(tiers: DimensionTiers, cardTitle: string, animal: string): string {
+  const e = EMPATHY_LABEL[tiers.empathy];
+  const r = RULE_LABEL[tiers.rule];
+  const s = RESIL_LABEL[tiers.resilience];
+  const o = ROLE_LABEL[tiers.role];
+
+  return `你属于"${cardTitle}"原型——一位以${e}为底色、以${r}为框架、以${o}为方向的${animal}型服务者。
+
+在共情力维度上，你展现出${e}的特质。这使你在服务场景中，能够以自己最自然的方式感知他人的需要——不过度卷入，也不冷漠疏离。
+
+在秩序感维度上，你倾向于${r}。这决定了你如何理解和运用规则：不是教条式地遵守，也不是随意地打破，而是在每一个具体情境中找到属于自己的那条线。
+
+你的应变力特质是${s}。面对困难时，这种姿态让你能够以自己的节奏穿越阻碍。像${animal}在森林中一样，你不需要走所有人都在走的路。
+
+作为一位${o}倾向的服务者，你的价值不在于模仿任何人的风格，而在于忠于自己与生俱来的方式——那正是你最不可替代的地方。`;
+}
+
+function buildDefaultRules(tiers: DimensionTiers): string {
+  const r = RULE_LABEL[tiers.rule];
+  const stoolInsights: Record<number, string> = {
+    0: "你偏好的少数凳子暗示着你对深度大于广度的认同——与其在一大群人中周旋，你更愿意和少数人进行有质量的对话。",
+    1: "你适中的凳子数量反映出你对社交空间的平衡感——既能享受独处的专注，也能融入团队的协作。",
+    2: "你偏好的充足凳子数量映射出你对团队协作的天然倾向——在群体中你能找到自己的能量和角色。",
+  };
+  return `你对规则的态度是${r}的。你的桌布选择映射了你对规则和边界的直觉——对你来说，规则既是约束也是保护，关键在于它服务于谁。
+
+${stoolInsights[tiers.role]}
+
+这种边界感让你在服务中既能保持自己的完整性，又能真诚地与他人相遇。最好的边界不是墙，而是知道自己站在哪里的那种确定感。`;
+}
+
+function buildDefaultEncounter(tiers: DimensionTiers): string {
+  const e = EMPATHY_LABEL[tiers.empathy];
+  const rl = ROLE_LABEL[tiers.role];
+
+  return `你与两只动物的相遇，揭示了你对自我和他人的关系模式。第一只动物映射你的自我认知——它是你在森林之镜中看到的自己。第二只动物映射你面对服务对象时的姿态——你倾向于以一种${e}的方式去接触对方。
+
+两只动物之间的关系动态，反映了你在服务关系中如何在'自我'和'他人'之间找到位置。这种模式不是固定不变的——它随着你的经历和觉察而演化。
+
+对你而言，重要的不是两只动物是不是同一物种，而是你是否意识到自己与每一个'他者'相遇时，你的第一反应是什么。那个反应里藏着你的天赋，也藏着你的成长边缘。`;
+}
+
+function buildDefaultPrescription(tiers: DimensionTiers): string {
+  const e = EMPATHY_LABEL[tiers.empathy];
+  const s = RESIL_LABEL[tiers.resilience];
+  const empathyRx: Record<number, string> = {
+    0: "每天花2分钟注意一次他人的情绪状态，不评判、不分析，只是注意。这是你的'共情肌肉'训练。",
+    1: "在每次服务交互后问自己：'这次我收放得当吗？'不需要立刻改变什么，保持觉察就是进步。",
+    2: "建立你的'情绪清空'仪式：每天留出10分钟，在安静中让一天积累的感受自然流过。你是敏感的接收器，也需要定期归零。",
+  };
+  const resilienceRx: Record<number, string> = {
+    0: "面对困难时，先对自己说'我可以先试一小步'。韧性不是天生的，是一次次小步积累出来的信心。",
+    1: "记录你的'越小胜利'：每次解决一个难题后，花1分钟写下你当时的思路。一个月后回看，你会发现自己的成长轨迹。",
+    2: "你的韧性是团队的压舱石——但压舱石也需要浮出水面呼吸。确保每周有一次让你完全放松的身体活动。",
+  };
+  return `1. ${empathyRx[tiers.empathy]}
+2. ${resilienceRx[tiers.resilience]}
+3. 找到至少一位你欣赏的服务者——可以是你生活中的人，也可以是你读过的一个故事——观察他们如何在自己的方式里做到从容。模仿不是目的，看清自己才是。`;
+}
+
+// ============================================================
+// 构建全部 81 个原型
+// ============================================================
+
+function buildAllArchetypes(): ArchetypeDefinition[] {
+  const archetypes: ArchetypeDefinition[] = [];
+
+  for (let idx = 0; idx < 81; idx++) {
+    const tiers = tiersFromIndex(idx);
+    const { empathy: e, rule: r, resilience: s, role: o } = tiers;
+
+    const animal = ANIMALS[`${o},${s},${e}`]!;
+    const prefixList = RULE_PREFIXES[r]!;
+    const prefix = prefixList[idx % prefixList.length]!;
+    const cardTitle = prefix + animal;
+    const roleTitle = `${cardTitle}·${animal}型服务者`;
+
+    const gp = gridPosition(tiers);
+    const center: DimensionScores = {
+      empathy: centerScore(e),
+      rule: centerScore(r),
+      resilience: centerScore(s),
+      role: centerScore(o),
+    };
+
+    archetypes.push({
+      gridPosition: gp,
+      tiers,
+      center,
+      roleTitle,
+      cardTitle,
+      cardInterpretation: buildCardInterpretation(tiers, animal),
+      aiPromptGuide: buildAiPromptGuide(tiers, animal),
+      defaultReport: {
+        archetype: buildDefaultArchetype(tiers, cardTitle, animal),
+        rules: buildDefaultRules(tiers),
+        encounter: buildDefaultEncounter(tiers),
+        prescription: buildDefaultPrescription(tiers),
+      },
+    });
+  }
+
+  return archetypes;
+}
+
+const ALL_ARCHETYPES: ArchetypeDefinition[] = buildAllArchetypes();
+
+// ============================================================
+// 导出函数
+// ============================================================
+
+/** 按四维分数匹配最近原型 */
+export function findArchetype(scores: DimensionScores): ArchetypeDefinition {
+  let best = ALL_ARCHETYPES[0]!;
+  let bestDist = Infinity;
+
+  for (const arch of ALL_ARCHETYPES) {
+    const d = Math.sqrt(
+      Math.pow(scores.empathy - arch.center.empathy, 2) +
+        Math.pow(scores.rule - arch.center.rule, 2) +
+        Math.pow(scores.resilience - arch.center.resilience, 2) +
+        Math.pow(scores.role - arch.center.role, 2)
+    );
+    if (d < bestDist) {
+      bestDist = d;
+      best = arch;
+    }
+  }
+
+  return best;
+}
+
+/** 按索引获取原型 */
+export function getArchetypeByIndex(index: number): ArchetypeDefinition {
+  return ALL_ARCHETYPES[index % 81]!;
+}
+
+/** 按四维档位获取原型 */
+export function getArchetypeByTiers(tiers: DimensionTiers): ArchetypeDefinition {
+  return ALL_ARCHETYPES[archetypeIndex(tiers)]!;
+}
+
+/** 四维分数 → 三档化 */
+export function scoresToTiers(scores: DimensionScores): DimensionTiers {
+  const toTier = (v: number): Tier => {
+    if (v <= 33) return 0;
+    if (v <= 66) return 1;
+    return 2;
+  };
+  return {
+    empathy: toTier(scores.empathy),
+    rule: toTier(scores.rule),
+    resilience: toTier(scores.resilience),
+    role: toTier(scores.role),
   };
 }
 
-const templates: ReportTemplate[] = [
-  {
-    center: { empathy: 80, rule: 40, resilience: 60, role: 70 },
-    roleTitle: "林间向导·灵狐型服务者",
-    cardTitle: "林间向导",
-    cardInterpretation: "你拥有敏锐的洞察力与温柔的引导力，在服务中善于观察、擅长陪伴。像森林中的灵狐，你能在复杂的需求中找到最优路径。",
-    fullReport: {
-      archetype: `你属于"林间向导"原型——一位以共情为指南针的服务者。你在测评中展现出的敏锐感知力，使你能够在他人的言语与沉默之间捕捉到真实的需求。这种天赋让你在服务场景中不只是执行者，更是理解者。
-
-你的服务风格温和而有力量。你不急于给出答案，而是先让对方的情绪着陆——这种方式往往能让被服务者感到"被真正看见了"。在团队中，你天然地成为那个"被大家找来倾诉"的人，因为你知道什么时候该倾听，什么时候该轻轻推一把。
-
-然而，你的高共情倾向有时候也意味着你承担了过多他人的情绪重量。你需要记住：最好的向导也不会为每一位旅人走完所有的路。保持你那份温柔的同时，学会适时退后一步。`,
-      rules: `你对规则的态度是灵活而实用的。对你来说，规则不是束缚而是参考——你会在理解规则背后的意图之后再决定如何行动。这种"有弹性的规则感"让你在面对灰色地带时比别人多一份从容，但也意味着你可能偶尔会被认为"不够规范"。
-
-你的边界感来自内心的判断，而非外部的条框。这让你的服务既有温度又有方向——你不会因为盲从流程而冷落一个人，也不会因为过度迁就而迷失自己。`,
-      encounter: `在你与两个动物的相遇中，我们看到了你与他人建立关系的方式。第一只动物代表你对自己的认知——你选择了一个温和而有洞察力的形象，说明你的内在自我是平和而敏锐的。第二只动物代表你在面对他人时的姿态——你的选择表明，你在关系中倾向于以一种温柔、好奇而非防御的方式去接触对方。
-
-两只动物之间是否有相似之处？如果有，说明你倾向于寻找与自己共鸣的人；如果差异很大，说明你对差异有着健康的包容度。无论哪种，都很好——关键是你意识到自己与他人相遇时的第一反应是什么。`,
-      prescription: `1. 保护你的共情天赋：每天留出10分钟的"情绪清空时间"，在安静的环境中让一天积累的感受自然流过，不评判、不分析。
-2. 建立你的边界仪式：在开始服务他人之前，做一个简单的心理标记（比如深呼吸三次），告诉自己"我在这里，但我不是你"。
-3. 培养决策直觉：当面临选择时，先问自己"什么能让对方感受到被尊重"，再问"什么能解决问题"。两个答案的交汇点，就是你的行动方向。`,
-    },
-  },
-  {
-    center: { empathy: 40, rule: 80, resilience: 60, role: 30 },
-    roleTitle: "秩序守护者·苍鹰型服务者",
-    cardTitle: "秩序守护者",
-    cardInterpretation: "你以清晰的标准和坚定的原则守护服务质量。像森林上空的苍鹰，你看到全局，也看到每一个细节。",
-    fullReport: {
-      archetype: `你属于"秩序守护者"原型——一位以标准和原则为导向的服务者。在测评中，你展现出了对规则的深度认同和对边界的清晰认知。对你来说，好的服务不是随意的善意，而是可预期、可衡量、可持续的高标准。
-
-你关注细节，重视流程。当别人看到混乱时，你已经在大脑中排列好了优先级。这种"结构感"让你在服务团队中天然的成为定海神针——客户知道找你能得到确定的答案，同事知道按你的流程走不会出错。
-
-你的挑战在于：过度依赖规则可能让你在需要灵活应变的时刻显得"不够暖"。记住，规则是手段不是目的。最坚固的桥也需要一定的柔韧性才能抗风。`,
-      rules: `规则是你世界的骨架。你对"崭新桌布"的偏好，映射出你对清晰边界的欣赏——你知道没有边界的服务最终会耗尽双方。在团队中，你是那个会被委托起草 SOP 的人，因为你天然地知道一个流程的每个节点应该是什么样子。
-
-但这种偏好也有另一面：你需要警惕"规则完美主义"。有时候，最好的服务发生在规则允许的灰色地带——一次额外的等待、一个超出标准的让步、一个流程之外的关心。`,
-      encounter: `你与两个动物的相遇揭示了你对关系的边界感。第一只动物代表你的自我认知——它可能是独立而警觉的，这与你在关系中需要"安全距离"的倾向一致。第二只动物代表你面对他人时的姿态——你可能倾向于保持观察者的视角，在确认安全之后才靠近。
-
-这种谨慎不是冷漠，而是尊重。你在用行动说："在我不确定是否能给你最好的之前，我不会轻易承诺。"这是一种成熟的关系姿态。`,
-      prescription: `1. 练习"柔软的边界"：每周选一件小事，主动打破自己设定的规则。比如在非工作时间回复一条消息，或者在没有准备的情况下接受一个邀约。
-2. 开发你的"温暖信号"：在每次服务交互中，除了解答问题，多说一句有人情味的话——不是流程要求的，而是你真心想表达的。
-3. 建立反馈循环：定期问你的服务对象一个简单的问题："今天的体验，你觉得还有什么可以更好的？"你可能会在答案里发现规则之外的改进方向。`,
-    },
-  },
-  {
-    center: { empathy: 70, rule: 40, resilience: 80, role: 60 },
-    roleTitle: "破壁行者·驯鹿型服务者",
-    cardTitle: "破壁行者",
-    cardInterpretation: "你不畏惧困难，总是能找到穿越阻碍的方法。像在岩石间跳跃的驯鹿，你的韧性本身就是他人力量的来源。",
-    fullReport: {
-      archetype: `你属于"破壁行者"原型——一位用韧性定义自己的服务者。在测评中，你面对"墙"的姿态告诉我们：在你眼中，没有过不去的阻碍，只有还没找到的角度。你不对困难做情绪反应，而是直接思考解决方案。
-
-这种稳健的韧性是你服务风格的核心。当客户投诉、当系统崩溃、当一切都偏离剧本时，你是那个让团队不慌的人。你身上有一种令人安心的"我能处理"的气场——这不是盲目的乐观，而是过往经验的沉淀。
-
-同时，你在高韧性之外还有着不低的共情。这意味着你解决问题的方式往往既有效又有人情味——你不会为了效率碾压他人，也不会为了安抚他人放弃效率。这是一种珍贵的能力组合。`,
-      rules: `你对规则的态度是务实的。"翻越"或"绕路"的选择说明，规则在你这里是达成目标的工具而非约束。你不会被一堵"流程的墙"挡住，但你也知道有些墙不应该拆——它们可能保护着什么。
-
-这种灵活让你在需要创新和变通的工作中出类拔萃。你适合处理那些"没有标准流程"的案例——因为你会自己找到路。`,
-      encounter: `你与两只动物的相遇充满了动态的张力。第一只动物代表你的自我认知——它活跃而有力量，与你面对困难时的姿态一致。第二只动物代表你面对他人时的态度——你的反应模式偏向于"我能为它做什么"而非"它会对我做什么"，这是一种服务者天生的外向视角。
-
-如果你感到两只动物之间有些距离，这可能反映你对"自我"和"他人"有清晰的区分——你能在帮助他人的同时保持自己的内心完整，不轻易被对方的情绪裹挟。这是一个成熟服务者的标志。`,
-      prescription: `1. 记录你的"翻越日记"：每次解决一个棘手问题后，用2分钟记下你当时的思路和感觉。一个月后回看，你会发现自己的韧性来源。
-2. 分享你的方法论：你不只是一个"能搞定的人"，你已经形成了独特的问题解决模式。尝试把它写下来或讲给同事听——这个过程会让你更清楚自己的价值。
-3. 照顾你的身体：高韧性的人往往在用身体扛着心理的消耗。确保你有规律的身体活动——不是健身房打卡，而是你真正享受的运动。身体是你最重要的服务工具。`,
-    },
-  },
-  {
-    center: { empathy: 40, rule: 70, resilience: 80, role: 20 },
-    roleTitle: "独立工匠·雪豹型服务者",
-    cardTitle: "独立工匠",
-    cardInterpretation: "你用精湛的专业能力和独立判断力提供高品质服务。像高山上的雪豹，你独行但从不迷失。",
-    fullReport: {
-      archetype: `你属于"独立工匠"原型——一位以专业深度为信仰的服务者。在测评中，你的选择描绘了一个独立、自信、有扎实判断力的服务者形象。你相信真正的服务来自于专业，而非热情。
-
-你的稀少凳子数量暗示着你对"深度大于广度"的认同。与其在一大群人中周旋，你更愿意和少数人进行有质量的对话。这种"少而精"的风格在需要专业判断的服务领域——比如咨询、医疗、法律、技术——往往是最有效的方式。
-
-你需要警惕的是：过度的独立可能让你低估了协作的价值。最锋利的刀也需要刀鞘的保护，最精湛的专业也需要团队的支撑。`,
-      rules: `你对规则的态度成熟而务实的。你的选择反映了"规则有价值，但规则应该服务于人而非反过来"的立场。你不会为了遵守规则而遵守规则，但你也认可规则存在的合理性。
-
-这种态度让你在需要"原则性灵活"的场合格外出色——你懂得在什么情况下应该坚持标准，在什么情况下应该做出调整。这不是"看心情"，而是一种基于经验的判断力。`,
-      encounter: `你与两只动物的关系映射了你对"自我"和"他人"的平衡。第一只动物倾向于独立和有边界感——你的专业自我需要空间和自主。第二只动物的选择显示了你在面对客户/他人时的姿态——你保持专业距离，但认真对待每一次相遇。
-
-这种平衡使你能够在服务中既不失去自己，也不怠慢他人。你有一种"高手气度"——不需要证明什么，但每一件事都做得恰到好处。`,
-      prescription: `1. 尝试"有结构的合作"：每月选一件你原本独立完成的工作，邀请一个同事参与。不是为了效率，而是为了体验被另一个人看到工作过程的感觉。
-2. 丰富你的反馈词典：除了"好的/不行"，添加更多描述性的反馈词汇。作为深度专业者，你的洞察本身就是一种服务。
-3. 给自己留出"不专业"的时间：刻意安排一些你不擅长、也不需要擅长的活动。在不完美的环境下保持舒适，是一种心理柔韧性的训练。`,
-    },
-  },
-  {
-    center: { empathy: 70, rule: 70, resilience: 50, role: 70 },
-    roleTitle: "平衡守护者·牧羊犬型服务者",
-    cardTitle: "平衡守护者",
-    cardInterpretation: "你在规则和关怀之间找到了自己的平衡点。像尽责的牧羊犬，你既守护边界也温暖群羊。",
-    fullReport: {
-      archetype: `你属于"平衡守护者"原型——一位兼顾了共情与规则的服务者。你的测评结果展现了一个高度整合的服务人格：你不会因为关照个体而牺牲公平，也不会因为坚持原则而失去温度。这种平衡感本身就是一种罕见的服务天赋。
-
-在服务场景中，你天然地扮演着"桥梁"的角色——你需要同时理解客户的情绪需求和组织的规则约束，并在两个世界之间找到可行的路径。你擅长的事情不是"二选一"，而是"怎么都兼顾"。
-
-你的挑战在于持续的能量管理。保持平衡比走极端更消耗心力——要在每一刻同时考量他人的感受和规则的边界，你的大脑比单维度服务者在工作中多跑了很多路。`,
-      rules: `你对规则的态度是"尊重但不盲从"。新的桌布暗示你对清晰标准有一定偏好，但适中的凳子数量说明你知道一个人做不了所有事。你理想的团队规模是"够用但不拥挤"——每个人都有明确的角色，彼此之间有交流和协作的空间。
-
-这种"适中的规则感+适中的团队感"让你成为团队中真正的修复者。当团队在"过度规范"和"完全松散"之间摇摆时，你往往是那个找到平衡点的人。`,
-      encounter: `你与两只动物的相遇展现了你对自我的认知和对他人关系的双重智慧。第一只动物既有独立的能力又有温暖的倾向——这反映了你对自己"既要强也要暖"的期待。第二只动物的选择进一步印证了你对他人的态度：你好奇、愿意接触，但不轻易被对方左右。
-
-这种关系模式意味着你在服务中能同时做到"在场"和"觉察"——你在用心参与互动的同时，也保留了一部分注意力在观察和分析上。这是最难练的功夫：全身心投入但不过度卷入。`,
-      prescription: `1. 正视你的能量消耗：每天结束时，用1-10分给自己的"心力剩余"打分。如果连续一周低于6分，说明你在平衡他人和规则之间付出了超出可持续水平的努力——需要调整。
-2. 把平衡方法"产品化"：你解决两难问题的方式是宝贵的隐性知识。尝试把它提炼成可分享的框架（比如"3步骤平衡法"），这将帮助你的团队也提升处理复杂服务情境的能力。
-3. 为你的"平衡木"做减法：有时候平衡不了的人和事，最好的选择是优雅地退出。不是每件事都需要你来平衡。学会说"这次我选择不介入"。`,
-    },
-  },
-  {
-    center: { empathy: 50, rule: 50, resilience: 50, role: 50 },
-    roleTitle: "探索旅人·幼鹿型服务者",
-    cardTitle: "探索旅人",
-    cardInterpretation: "你正走在自我发现的路上，对服务与关系的理解还在形成中。像初入森林的幼鹿，你的可能性无限。",
-    fullReport: {
-      archetype: `你属于"探索旅人"原型——一位正在形成自己服务风格的新生力量。在所有原型中，这可能是最有潜力的一个：你没有固定的模式，每条路都向你敞开。在测评中，你的答案分布在各个维度的中间区域，暗示着一个正在"收集数据"的服务者。
-
-这不代表"不够好"——恰恰相反，这说明你对不同的服务场景保持着开放和好奇。你不会被一个固定的标签定义，而是在不同的情境中自然地调整自己的方式。这种适应力在快速变化的工作环境中是巨大的优势。
-
-随着你在真实服务场景中积累更多体验，你的四维分布可能会向某个方向偏移——但不用担心，那不是"定型"，而是"成长"。每一个阶段都有其独特的美。`,
-      rules: `你对规则的态度正处在一个探索期。"适中"的选择说明你既没有强烈的规则偏好，也没有明确的反规则倾向——你在观察，在感受不同的规则密度对你和他人产生的影响。
-
-这个阶段最重要的是对自己的诚实：在哪些时刻，你感到"有规则真好"？在哪些时刻，你感到"这个规则让我不舒服"？这些微小的感受是你形成自己规则观的建筑材料。`,
-      encounter: `你与两只动物的相遇方式，揭示了你对自我和他人的平衡探索。两个动物的特质可能比较相似——这反映了你对"一致性"的重视，你在关系中寻求的是一种和谐的、可预测的互动模式。
-
-另一种可能是两个动物差异很大——这说明你对"差异"有天然的包容，甚至好奇。你不需要所有人像你一样，这种开放性是你最宝贵的服务资产。`,
-      prescription: `1. 开始你的"服务日志"：每周记录一次让你印象深刻的互动——可以是你服务他人的时刻，也可以是你被服务的时刻。写下：发生了什么、你当时的感受、你学到了什么。
-2. 尝试不同风格的服务场景：如果你习惯了独立工作，试试团队协作；如果你一直面对团体，试试一对一的深度对话。你的"均衡"意味着你具备适应多种场景的潜力。
-3. 找到至少一位你欣赏的服务者（可以是同事、导师、甚至一位让你印象深刻的客服），观察并拆解他们的服务方式中有哪些你想学习的元素。模仿是成长的最快路径。`,
-    },
-  },
-];
-
-export function getTemplateByIndex(index: number): ReportTemplate {
-  return templates[index % templates.length];
+/** 获取原型总数 */
+export function getArchetypeCount(): number {
+  return ALL_ARCHETYPES.length;
 }
 
-export function getAllTemplates(): ReportTemplate[] {
-  return templates;
-}
+/** 兼容旧版接口：保留 ReportTemplate 类型别名 */
+export type { ArchetypeDefinition as ReportTemplate };
