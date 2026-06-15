@@ -1,6 +1,6 @@
 # Forest Journey — 项目状态
 
-> 最后更新：2026-06-15
+> 最后更新：2026-06-16
 
 ## 完成阶段
 
@@ -20,6 +20,7 @@
 | Phase 22 | B 端岗位模型 — 四维画像+候选人匹配（子系统 4/5） | ✅ |
 | Phase 23 | B 端报告导出 — CSV 批量下载（子系统 5/5） | ✅ |
 | Phase 24 | B 端完善 — 仪表盘统计/邀请码用户列表/邮箱追踪 | ✅ |
+| Phase 25 | AI 测评引擎 v2 — DeepSeek 深度分析 + 81 原型混合模式 | ✅ |
 
 ## 验证
 
@@ -29,13 +30,15 @@
 
 ## 技术栈
 
-Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest + Prisma v7 + Supabase Auth + OpenAI API + Web Audio / Speech API
+Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest + Prisma v7 + Supabase Auth + DeepSeek API + Web Audio / Speech API
 
 ## 关键决策
 
 - 无需登录即可测评，注册保存报告
 - 限时免费（划线价 ¥9.99），直接看完整报告
-- 6 种报告模板（Euclidean distance 匹配）
+- 81 种服务人格原型（4 维 × 3 档全排列），Euclidean distance 匹配
+- DeepSeek 混合模式：规则引擎初评 + AI 校准 + 动态生成个性化报告
+- 三层降级：DeepSeek → 规则引擎 + 81 原型默认报告 → 完全离线可用
 - 个人中心 localStorage（最多 5 条）
 - 零外部音频文件（Web Audio API 程序化合成）
 
@@ -47,6 +50,7 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 - [语音输入设计](docs/superpowers/specs/2026-06-14-voice-input-design.md) / [语音计划](docs/superpowers/plans/2026-06-14-voice-input.md)
 - [Admin 布局设计](docs/superpowers/specs/2026-06-15-admin-auth-layout-design.md) / [Admin 计划](docs/superpowers/plans/2026-06-15-admin-auth-layout.md)
 - [测评码设计](docs/superpowers/specs/2026-06-15-invite-codes-design.md) / [测评码计划](docs/superpowers/plans/2026-06-15-invite-codes.md)
+- [AI 引擎 v2 设计](docs/superpowers/specs/2026-06-15-ai-assessment-engine-v2-design.md) / [AI 引擎 v2 计划](docs/superpowers/plans/2026-06-15-ai-assessment-engine-v2.md)
 
 ## 变更记录
 
@@ -65,11 +69,14 @@ Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion + Vitest 
 - **岗位模型（子系统 4）**：RoleModel 表存储岗位四维画像；滑块调节+迷你雷达图实时预览；Euclidean distance 候选人匹配排序+叠加雷达对比
 - **报告导出（子系统 5）**：CSV 格式团队数据批量导出，7 列包含原型+四维分+时间+批次，API 直接返回文件下载
 - **B 端完善**：仪表盘展示真实统计卡片+快捷入口；InviteCodeUser 增加 email 字段；邀请码详情页显示实际使用者列表含邮箱和报告；团队看板成员列表新增邮箱列
+- **AI 引擎 v2**：DeepSeek 替换 OpenAI；81 种自研服务人格原型（4维×3档全排列）；混合模式（规则初评 + AI 校准，分歧熔断阈值 40 分）；三层降级（DeepSeek → 81 原型默认报告 → 完全离线）；JSON 防御解析（3 层提取）；NLP 降级库扩展中文关键词 + 特征词提取 + 关系动态推断
 
 ## Bug 修复
 
 - React setState 从渲染期间移至 useEffect
 - 雷达图 SVG viewBox 标签裁切（`0 0 280 280` → `-30 -10 340 320`）
+- `/api/report` 400 — useCallback 闭包陈旧导致 saveLatestAnswers 丢失场景数据，改用 useRef + 前置校验（2026-06-16）
+- AudioContext 自动播放警告 — 延迟到用户交互后才创建 AudioContext（2026-06-16）
 
 ## 安全审查
 
