@@ -65,12 +65,7 @@ export interface ReportData {
   roleTitle: string;
   cardTitle: string;
   cardInterpretation: string;
-  fullReport: {
-    archetype: string;
-    rules: string;
-    encounter: string;
-    prescription: string;
-  };
+  fullReport: ReportSections;
   isPaid: boolean;
 }
 
@@ -110,6 +105,14 @@ export interface AIAnalysisResult {
   personalizedNote: string; // 1-2句，≤80字
 }
 
+/** 报告四大章节内容 */
+export interface ReportSections {
+  archetype: string;
+  rules: string;
+  encounter: string;
+  prescription: string;
+}
+
 /** 81种原型定义 */
 export interface ArchetypeDefinition {
   gridPosition: string;
@@ -119,10 +122,5 @@ export interface ArchetypeDefinition {
   cardTitle: string;
   cardInterpretation: string;
   aiPromptGuide: string;
-  defaultReport: {
-    archetype: string;
-    rules: string;
-    encounter: string;
-    prescription: string;
-  };
+  defaultReport: ReportSections;
 }
