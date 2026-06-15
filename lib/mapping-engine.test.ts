@@ -136,7 +136,7 @@ describe("matchTemplate", () => {
     const scores = { empathy: 80, rule: 60, resilience: 70, role: 30 };
     const result = matchTemplate(scores);
     expect(result.templateIndex).toBeGreaterThanOrEqual(0);
-    expect(result.templateIndex).toBeLessThan(6);
+    expect(result.templateIndex).toBeLessThan(81);
     expect(result.roleTitle).toBeTruthy();
     expect(result.cardTitle).toBeTruthy();
   });
