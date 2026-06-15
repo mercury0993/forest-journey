@@ -41,13 +41,6 @@ const RULE_LABEL     = ["灵活变通", "弹性务实", "秩序井然"];
 const RESIL_LABEL    = ["柔韧生长", "稳中求进", "坚如磐石"];
 const ROLE_LABEL     = ["专家顾问", "协作平衡", "服务者"];
 
-function tierLabel(dim: string, t: Tier): string {
-  const map: Record<string, string[]> = {
-    empathy: EMPATHY_LABEL, rule: RULE_LABEL, resilience: RESIL_LABEL, role: ROLE_LABEL,
-  };
-  return map[dim]?.[t] ?? "均衡";
-}
-
 function gridPosition(tiers: DimensionTiers): string {
   return `${tierLevel(tiers.empathy)}共情·${tierLevel(tiers.rule)}秩序·${tierLevel(tiers.resilience)}应变·${tierLevel(tiers.role)}角色`;
 }
@@ -109,12 +102,23 @@ function buildAiPromptGuide(tiers: DimensionTiers, animal: string): string {
     1: "中等秩序感，弹性务实。解读时肯定其在规则与灵活之间的平衡智慧。",
     2: "高秩序感，重视流程。解读时强调标准化服务的力量，但处方中需提醒'规则之外的温暖'。",
   };
+  const resilienceTips: Record<number, string> = {
+    0: "应变力偏低，面对压力时可能需要更多支持。解读时肯定其敏感和细腻的价值，处方中建议小步骤建立信心。",
+    1: "应变力适中，能够应对常规挑战。解读时关注其稳定的心理资源，处方中建议记录'越小胜利'来觉察自己的成长。",
+    2: "高应变力是ta的铠甲。解读时赞美这份坚韧，但务必提醒：最硬的铠甲也需要定期卸下。处方中建议安排真正的休息。",
+  };
+  const roleTips: Record<number, string> = {
+    0: "专家顾问倾向，独立判断力强。解读时强调专业深度的价值，处方中建议偶尔尝试协作以丰富视角。",
+    1: "协作平衡型，能在独立和团队之间灵活切换。解读时肯定这种适应性本身就是一种稀缺能力。",
+    2: "服务者倾向，团队导向。解读时赞美其成就他人的天赋，但处方中务必提醒'服务者也需要被服务'。",
+  };
 
   return `该用户属于${e}+${r}+${s}+${o}的${animal}原型。
-    ${empathyTips[tiers.empathy]}
-    ${ruleTips[tiers.rule]}
-    应变力${s}，角色定位${o}。
-    报告应引用用户关于动物和墙的具体描述，让解读有据可依。`;
+${empathyTips[tiers.empathy]}
+${ruleTips[tiers.rule]}
+${resilienceTips[tiers.resilience]}
+${roleTips[tiers.role]}
+报告应引用用户关于动物和墙的具体描述，让解读有据可依。`;
 }
 
 // ============================================================
@@ -127,6 +131,13 @@ function buildDefaultArchetype(tiers: DimensionTiers, cardTitle: string, animal:
   const s = RESIL_LABEL[tiers.resilience];
   const o = ROLE_LABEL[tiers.role];
 
+  const stoolInsights: Record<number, string> = {
+    0: "你偏好的少数凳子暗示着你对深度大于广度的认同——与其在一大群人中周旋，你更愿意和少数人进行有质量的对话。",
+    1: "你适中的凳子数量反映出你对社交空间的平衡感——既能享受独处的专注，也能融入团队的协作。",
+    2: "你偏好的充足凳子数量映射出你对团队协作的天然倾向——在群体中你能找到自己的能量和角色。",
+  };
+  const stoolInsight = stoolInsights[tiers.role];
+
   return `你属于"${cardTitle}"原型——一位以${e}为底色、以${r}为框架、以${o}为方向的${animal}型服务者。
 
 在共情力维度上，你展现出${e}的特质。这使你在服务场景中，能够以自己最自然的方式感知他人的需要——不过度卷入，也不冷漠疏离。
@@ -135,26 +146,21 @@ function buildDefaultArchetype(tiers: DimensionTiers, cardTitle: string, animal:
 
 你的应变力特质是${s}。面对困难时，这种姿态让你能够以自己的节奏穿越阻碍。像${animal}在森林中一样，你不需要走所有人都在走的路。
 
-作为一位${o}倾向的服务者，你的价值不在于模仿任何人的风格，而在于忠于自己与生俱来的方式——那正是你最不可替代的地方。`;
+作为一位${o}倾向的服务者，你的价值不在于模仿任何人的风格，而在于忠于自己与生俱来的方式——那正是你最不可替代的地方。
+
+在社交边界上，${stoolInsight}`;
 }
 
 function buildDefaultRules(tiers: DimensionTiers): string {
   const r = RULE_LABEL[tiers.rule];
-  const stoolInsights: Record<number, string> = {
-    0: "你偏好的少数凳子暗示着你对深度大于广度的认同——与其在一大群人中周旋，你更愿意和少数人进行有质量的对话。",
-    1: "你适中的凳子数量反映出你对社交空间的平衡感——既能享受独处的专注，也能融入团队的协作。",
-    2: "你偏好的充足凳子数量映射出你对团队协作的天然倾向——在群体中你能找到自己的能量和角色。",
-  };
-  return `你对规则的态度是${r}的。你的桌布选择映射了你对规则和边界的直觉——对你来说，规则既是约束也是保护，关键在于它服务于谁。
 
-${stoolInsights[tiers.role]}
+  return `你对规则的态度是${r}的。你的桌布选择映射了你对规则和边界的直觉——对你来说，规则既是约束也是保护，关键在于它服务于谁。
 
 这种边界感让你在服务中既能保持自己的完整性，又能真诚地与他人相遇。最好的边界不是墙，而是知道自己站在哪里的那种确定感。`;
 }
 
 function buildDefaultEncounter(tiers: DimensionTiers): string {
   const e = EMPATHY_LABEL[tiers.empathy];
-  const rl = ROLE_LABEL[tiers.role];
 
   return `你与两只动物的相遇，揭示了你对自我和他人的关系模式。第一只动物映射你的自我认知——它是你在森林之镜中看到的自己。第二只动物映射你面对服务对象时的姿态——你倾向于以一种${e}的方式去接触对方。
 
